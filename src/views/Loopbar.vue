@@ -20,6 +20,7 @@
       End
       <input type="number" :value="endValue" @input="setEndValue($event.target.value)"/>
     </label>
+    <button @click="toggleLoop()">Toggle looping</button>
   </div>
 </template>
 
@@ -121,6 +122,8 @@ export default class Home extends Vue {
     }
   }
 
+  private intervallId: number | null = null;
+
   $refs!: {
     videoFileInput: HTMLInputElement,
     player: HTMLVideoElement,
@@ -135,6 +138,36 @@ export default class Home extends Vue {
 
   timeUpdated () {
     this.currentSecond = this.$refs.player.currentTime;
+  }
+
+  toggleLoop () {
+    if (this.intervallId == null) {
+      this.startLoop();
+    } else {
+      this.stopLoop();
+    }
+  }
+
+  startLoop () {
+    this.playLoopStart();
+    const durationInMilliseconds = this.durationInSeconds * 1000;
+    this.intervallId = setInterval(() => this.playLoopStart(), durationInMilliseconds);
+  }
+
+  stopLoop () {
+    if (this.intervallId != null) {
+      clearInterval(this.intervallId);
+      this.intervallId = null;
+    }
+  }
+
+  private playLoopStart () {
+    this.$refs.player.currentTime = this.startInSeconds;
+    this.$refs.player.play();
+  }
+
+  private pause() {
+    this.$refs.player.pause();
   }
 }
 </script>

@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive, ref } from 'vue'
+import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
 
 import NumberInput from '@/components/number-input.vue'
 
@@ -35,7 +35,11 @@ export default defineComponent({
       required: true
     }
   },
-  setup (props) {
+  emits: [
+    "updated-period",
+    "updated-offset",
+  ],
+  setup (props, ctx) {
     const useCustomBpm = ref(false)
     const customBpm = ref<number>(0)
     const useCustomOffset = ref(false)
@@ -43,13 +47,14 @@ export default defineComponent({
 
     const beatMeter = reactive(new BeatMeter())
 
-    const bpm = computed(() => {
+    const period = computed(() => {
       if (useCustomBpm.value) {
-        return customBpm.value
+        return 60 / customBpm.value
       } else {
-        return beatMeter.bpm
+        return beatMeter.period
       }
     })
+    watch(period, value => ctx.emit("updated-period", value))
     const offset = computed(() => {
       if (useCustomOffset.value) {
         return customOffset.value
@@ -57,12 +62,13 @@ export default defineComponent({
         return beatMeter.offset
       }
     })
+    watch(offset, value => ctx.emit("updated-offset", value))
 
     const clap = computed(() => {
-      const hertz = 60 / bpm.value
-      const beatPhase = (props.currentTime - offset.value) % hertz
+      const offsetSeconds = offset.value * period.value
+      const beatPhase = (props.currentTime - offsetSeconds) % period.value
       // Only clap for 25 % of the beat.
-      return (beatPhase / hertz) < 0.25
+      return (beatPhase / period.value) < 0.25
     })
 
 
@@ -80,7 +86,7 @@ export default defineComponent({
       customBpm,
       useCustomOffset,
       customOffset,
-      bpm,
+      period,
       offset,
       clap
     }

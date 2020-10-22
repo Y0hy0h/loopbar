@@ -5,7 +5,6 @@
       <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
     </label>
     <video ref="player" id="player" controls @playing="$emit('started-playing')" @pause="$emit('paused')"></video>
-    <span class="currentTime">{{currentTimeIndicator}}</span>
   </div>
 </template>
 
@@ -31,15 +30,11 @@ export default defineComponent({
       requestAnimationFrame(updateCurrentTime)
     }
     onMounted(updateCurrentTime)
-    const currentTimeIndicator = computed(() => {
-      return timecodeFromSecond(currentTime.value)
-    })
-
+    
     return {
       videoFileInput,
       player,
       currentTime,
-      currentTimeIndicator
     }
   },
   methods: {
@@ -78,10 +73,5 @@ export default defineComponent({
   #player {
     max-width: 100%;
     max-height: 50vh;
-  }
-
-  .currentTime {
-    font-family: monospace;
-    font-size: 2rem;
   }
 </style>

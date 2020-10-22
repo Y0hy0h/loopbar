@@ -7,9 +7,12 @@ export class BeatMeter {
     this.calculate(beats)
   }
 
-    private bpm_ = 0
+    private period_ = 0
+    public get period () {
+        return this.period_
+    }
     public get bpm () {
-      return this.bpm_
+      return 60 / this.period
     }
 
     private offset_ = 0
@@ -30,12 +33,12 @@ export class BeatMeter {
     }
 
     private calculate (beats: number[]) {
-      this.bpm_ = calculateBpm(beats)
+      this.period_ = calculatePeriod(beats)
       this.offset_ = calculateOffset(beats, this.bpm)
     }
 }
 
-function calculateBpm (beats: number[]): number {
+function calculatePeriod (beats: number[]): number {
   if (beats.length == 0) {
     return 0
   }
@@ -44,9 +47,9 @@ function calculateBpm (beats: number[]): number {
   const distances = removeOutliers(distancesWithOutliers)
 
   // Remove outliers for better error tolerance.
-  const averageDistanceInSeconds = distances.reduce((accu, next) => accu + next, 0) / distances.length
+  const averagePeriod = distances.reduce((accu, next) => accu + next, 0) / distances.length
 
-  return 60 / averageDistanceInSeconds
+  return averagePeriod
 }
 
 /**

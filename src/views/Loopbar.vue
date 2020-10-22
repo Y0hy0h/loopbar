@@ -1,12 +1,5 @@
 <template>
-  <div class="videoArea">
-    <label>
-      Choose a video file
-      <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
-    </label>
-    <video ref="player" id="player" controls @timeupdate="timeUpdated"></video>
-    <span class="currentTime">{{currentTimeIndicator}}</span>
-  </div>
+  <VideoPlayer ref="player"></VideoPlayer>
   <div class="loopArea">
     <label>
       Start
@@ -27,15 +20,16 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 
+import VideoPlayer from '@/components/video-player.vue';
+
 import { timecodeFromSecond } from '../logic/time'
 
-@Options({})
-export default class Home extends Vue {
-  currentSecond = 0;
-  get currentTimeIndicator(): string {
-    return timecodeFromSecond(this.currentSecond)
+@Options({
+  components: {
+    VideoPlayer
   }
-
+})
+export default class Home extends Vue {
   startInSeconds_ = 0;
   get startInSeconds () {
     return this.startInSeconds_;
@@ -125,19 +119,7 @@ export default class Home extends Vue {
   private intervallId: number | null = null;
 
   $refs!: {
-    videoFileInput: HTMLInputElement,
-    player: HTMLVideoElement,
-  }
-
-  videoFileSelected () {
-    // Handle case where no file is present.
-    const videoFile = this.$refs.videoFileInput.files?.[0];
-    const fileUrl = URL.createObjectURL(videoFile);
-    this.$refs.player.src = fileUrl;
-  }
-
-  timeUpdated () {
-    this.currentSecond = this.$refs.player.currentTime;
+    player: VideoPlayer,
   }
 
   toggleLoop () {
@@ -162,7 +144,7 @@ export default class Home extends Vue {
   }
 
   private playLoopStart () {
-    this.$refs.player.currentTime = this.startInSeconds;
+    this.$refs.player.seekToSecond(this.startInSeconds);
     this.$refs.player.play();
   }
 

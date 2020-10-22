@@ -10,50 +10,49 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component'
+import { computed, defineComponent, ref } from 'vue';
 
-import { timecodeFromSecond } from '../logic/time'
+import { timecodeFromSecond } from '../logic/time';
 
-@Options({})
-export default class VideoPlayer extends Vue {
-  currentSecond_ = 0;
-  public get currentSecond () {
-      return this.currentSecond_;
-  }
+export default defineComponent({
+    setup (props) {
+        const videoFileInput = ref<HTMLInputElement>(null!);
+        const player = ref<HTMLVideoElement>(null!);
 
-  get currentTimeIndicator(): string {
-    return timecodeFromSecond(this.currentSecond)
-  }
+        const currentSecond = ref(0);
+        const currentTimeIndicator = computed(() => {
+            timecodeFromSecond(currentSecond.value)
+        });
 
-  $refs!: {
-    videoFileInput: HTMLInputElement,
-    player: HTMLVideoElement,
-  }
-
-  public seekToSecond (second: number) {
-      this.currentSecond_ = second;
-      this.$refs.player.currentTime = this.currentSecond;
-  }
-
-  public play () {
-      this.$refs.player.play();
-  }
-
-  public pause () {
-      this.$refs.player.pause();
-  }
-
-  videoFileSelected () {
-    // Handle case where no file is present.
-    const videoFile = this.$refs.videoFileInput.files?.[0];
-    const fileUrl = URL.createObjectURL(videoFile);
-    this.$refs.player.src = fileUrl;
-  }
-
-  timeUpdated () {
-    this.currentSecond_ = this.$refs.player.currentTime;
-  }
-}
+        return {
+            videoFileInput,
+            player,
+            currentSecond,
+            currentTimeIndicator
+        }
+    },
+    methods: {
+        seekToSecond (second: number) {
+            this.currentSecond = second;
+            this.player.currentTime = this.currentSecond;
+        },
+        play () {
+            this.player.play();
+        },
+        pause () {
+            this.player.pause();
+        },
+        videoFileSelected () {
+            // Handle case where no file is present.
+            const videoFile = this.videoFileInput.files?.[0];
+            const fileUrl = URL.createObjectURL(videoFile);
+            this.player.src = fileUrl;
+        },
+        timeUpdated () {
+            this.currentSecond = this.player.currentTime;
+        }
+    }
+});
 </script>
 
 <style>

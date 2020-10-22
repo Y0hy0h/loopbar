@@ -9,63 +9,62 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, watch } from "vue";
+import { defineComponent, reactive, ref, watch } from 'vue'
 
-import VideoPlayer from "@/components/video-player.vue";
-import NumberInput from "@/components/number-input.vue";
+import VideoPlayer from '@/components/video-player.vue'
+import NumberInput from '@/components/number-input.vue'
 
-import { Range } from "../logic/range";
-import { timecodeFromSecond } from "../logic/time";
+import { Range } from '../logic/range'
 
 export default defineComponent({
   components: {
     VideoPlayer,
-    NumberInput,
+    NumberInput
   },
-  setup(props) {
-    const player = ref<typeof VideoPlayer>(null!);
+  setup () {
+    const player = ref<typeof VideoPlayer>(null!)
 
-    const range = reactive(new Range(0, 1));
+    const range = reactive(new Range(0, 1))
     watch(range, (newValue) => console.log(newValue))
-    const intervallId = ref<number | null>(null);
+    const intervallId = ref<number | null>(null)
 
     return {
       player,
       range,
-      intervallId,
-    };
+      intervallId
+    }
   },
   methods: {
-    toggleLoop() {
+    toggleLoop () {
       if (this.intervallId == null) {
-        this.startLoop();
+        this.startLoop()
       } else {
-        this.stopLoop();
+        this.stopLoop()
       }
     },
-    startLoop() {
-      this.$_playLoopStart();
-      const durationInMilliseconds = this.range.duration * 1000;
+    startLoop () {
+      this.$_playLoopStart()
+      const durationInMilliseconds = this.range.duration * 1000
       this.intervallId = setInterval(
         () => this.$_playLoopStart(),
         durationInMilliseconds
-      );
+      )
     },
-    stopLoop() {
+    stopLoop () {
       if (this.intervallId != null) {
-        clearInterval(this.intervallId);
-        this.intervallId = null;
+        clearInterval(this.intervallId)
+        this.intervallId = null
       }
     },
-    $_playLoopStart() {
-      this.player.seekToSecond(this.range.start);
-      this.player.play();
+    $_playLoopStart () {
+      this.player.seekToSecond(this.range.start)
+      this.player.play()
     },
-    $_pause() {
-      this.player.pause();
-    },
-  },
-});
+    $_pause () {
+      this.player.pause()
+    }
+  }
+})
 </script>
 
 <style>

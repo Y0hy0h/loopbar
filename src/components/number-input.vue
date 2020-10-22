@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, ref, toRefs } from 'vue';
+import { defineComponent, watch, ref, toRefs } from 'vue'
 
 import { timecodeFromSecond } from '../logic/time'
 
@@ -20,17 +20,17 @@ export default defineComponent({
   emits: [
     'update:modelValue'
   ],
-  setup(props) {
-    const { modelValue } = toRefs(props);
+  setup (props) {
+    const { modelValue } = toRefs(props)
 
-    const inputText = ref(formatValue(modelValue.value));
+    const inputText = ref(formatValue(modelValue.value))
 
     watch(modelValue, (newValue) => {
-      const parsed = parseInput(inputText.value);
+      const parsed = parseInput(inputText.value)
       if (parsed != null && parsed != newValue) {
-        inputText.value = formatValue(newValue);
+        inputText.value = formatValue(newValue)
       }
-    });
+    })
 
     return {
       modelValue,
@@ -39,30 +39,30 @@ export default defineComponent({
   },
   methods: {
     newInput (input: string) {
-      this.inputText = input;
+      this.inputText = input
 
-      const parsed = parseInput(input);
+      const parsed = parseInput(input)
       if (parsed != null) {
-        this.$emit("update:modelValue", parsed);
+        this.$emit('update:modelValue', parsed)
       }
     }
   }
-});
+})
 
 function parseInput (input: string): number | null {
-  const parsed = Number.parseFloat(input);
+  const parsed = Number.parseFloat(input)
   if (parsed != NaN) {
-    return parsed;
+    return parsed
   } else {
-    return null;
+    return null
   }
 }
 
 function formatValue (value: number): string {
   if (value % 1 == 0) { // if it is a whole number
-    return value.toString();
+    return value.toString()
   } else {
-    return value.toFixed(2);
+    return value.toFixed(2)
   }
 }
 </script>

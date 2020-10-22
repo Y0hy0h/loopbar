@@ -13,21 +13,21 @@ describe('Range', () => {
           start: fc.double(0, MAX_SECONDS),
           duration: fc.double(0, MAX_SECONDS),
           property: fc.oneof(
-            fc.constant("start"), 
-            fc.constant("duration"), 
-            fc.constant("end")
+            fc.constant('start'),
+            fc.constant('duration'),
+            fc.constant('end')
           ),
-          change: fc.oneof(fc.double(-2*MAX_SECONDS, 2*MAX_SECONDS), fc.constant(NaN))
+          change: fc.oneof(fc.double(-2 * MAX_SECONDS, 2 * MAX_SECONDS), fc.constant(NaN))
         }),
         data => {
           const range = new Range(data.start, data.duration)
 
           switch (data.property) {
-            case "start": {
+            case 'start': {
               range.start += data.change
               break
             }
-            case "duration": {
+            case 'duration': {
               range.duration += data.change
               break
             }

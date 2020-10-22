@@ -21,7 +21,7 @@ export default defineComponent({
 
     const currentSecond = ref(0)
     const currentTimeIndicator = computed(() => {
-      timecodeFromSecond(currentSecond.value)
+      return timecodeFromSecond(currentSecond.value)
     })
 
     return {

@@ -1,17 +1,19 @@
 <template>
-  <VideoPlayer ref="player"></VideoPlayer>
-  <div class="loopArea">
+  <VideoPlayer ref="player" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
+  <div class="loop-area">
     <NumberInput v-model="range.start">Start</NumberInput>
     <NumberInput v-model="range.duration">Duration</NumberInput>
     <NumberInput v-model="range.end">End</NumberInput>
     <button @click="toggleLoop()">Toggle looping</button>
   </div>
+  <BeatSettings :currentTime="currentTime"></BeatSettings>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from 'vue'
 
 import VideoPlayer from '@/components/video-player.vue'
+import BeatSettings from '@/components/beat-settings.vue'
 import NumberInput from '@/components/number-input.vue'
 
 import { Range } from '../logic/range'
@@ -19,17 +21,19 @@ import { Range } from '../logic/range'
 export default defineComponent({
   components: {
     VideoPlayer,
-    NumberInput
+    NumberInput,
+    BeatSettings
   },
   setup () {
     const player = ref<typeof VideoPlayer>(null!)
+    const currentTime = ref(0)
 
     const range = reactive(new Range(0, 1))
-    watch(range, (newValue) => console.log(newValue))
     const intervallId = ref<number | null>(null)
 
     return {
       player,
+      currentTime,
       range,
       intervallId
     }
@@ -56,6 +60,9 @@ export default defineComponent({
         this.intervallId = null
       }
     },
+    videoPaused () {
+      this.stopLoop()
+    },
     $_playLoopStart () {
       this.player.seekToSecond(this.range.start)
       this.player.play()
@@ -74,19 +81,9 @@ label {
   align-items: flex-start;
 }
 
-.videoArea {
+.loop-area {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-}
-
-#player {
-  max-width: 100%;
-  max-height: 50vh;
-}
-
-.currentTime {
-  font-family: monospace;
-  font-size: 2rem;
 }
 </style>

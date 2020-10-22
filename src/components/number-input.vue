@@ -1,7 +1,7 @@
 <template>
   <label>
     <slot></slot>
-    <input type="number" :value="inputText" @input="newInput($event.target.value)"/>
+    <input type="text" inputmode="decimal" :value="inputText" @input="newInput($event.target.value)"/>
   </label>
 </template>
 

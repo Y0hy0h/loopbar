@@ -15,7 +15,7 @@ import { Options, Vue } from 'vue-class-component'
 import { timecodeFromSecond } from '../logic/time'
 
 @Options({})
-export default class Home extends Vue {
+export default class VideoPlayer extends Vue {
   currentSecond_ = 0;
   public get currentSecond () {
       return this.currentSecond_;

@@ -1,18 +1,9 @@
 <template>
   <VideoPlayer ref="player"></VideoPlayer>
   <div class="loopArea">
-    <label>
-      Start
-      <input type="number" :value="startValue" @input="setStartValue($event.target.value)"/>
-    </label>
-    <label>
-      Duration
-      <input type="number" :value="durationValue" @input="setDurationValue($event.target.value)"/>
-    </label>
-    <label>
-      End
-      <input type="number" :value="endValue" @input="setEndValue($event.target.value)"/>
-    </label>
+    <NumberInput v-model="startInSeconds">Start</NumberInput>
+    <NumberInput v-model="durationInSeconds">Duration</NumberInput>
+    <NumberInput v-model="endInSeconds">End</NumberInput>
     <button @click="toggleLoop()">Toggle looping</button>
   </div>
 </template>
@@ -21,15 +12,17 @@
 import { Options, Vue } from 'vue-class-component'
 
 import VideoPlayer from '@/components/video-player.vue';
+import NumberInput from '@/components/number-input.vue';
 
 import { timecodeFromSecond } from '../logic/time'
 
 @Options({
   components: {
-    VideoPlayer
+    VideoPlayer,
+    NumberInput,
   }
 })
-export default class Home extends Vue {
+export default class Loopbar extends Vue {
   startInSeconds_ = 0;
   get startInSeconds () {
     return this.startInSeconds_;
@@ -47,72 +40,13 @@ export default class Home extends Vue {
   get endInSeconds () {
     return this.startInSeconds + this.durationInSeconds;
   }
-
-  startValue: string = this.updateStartValue();
-  private setStartValue(newStart: string) {
-    this.startValue = newStart;
-    const parsed = this.parseSecond(newStart);
-    if (parsed != null && parsed != this.startInSeconds) {
-      this.startInSeconds = parsed;
-      this.updateStartValue();
-      this.updateEndValue();
-    }
-  };
-  private updateStartValue (): string {
-    const newValue = this.formatSeconds(this.startInSeconds);
-    this.startValue = newValue;
-    return newValue;
-  }
-
-  durationValue = this.updateDurationValue();
-  private setDurationValue(newDuration: string) {
-    this.durationValue = newDuration;
-    const parsed = this.parseSecond(newDuration);
-    if (parsed != null && parsed != this.durationInSeconds) {
-      this.durationInSeconds = parsed;
-      this.updateDurationValue();
-      this.updateEndValue();
-    }
-  };
-  updateDurationValue (): string {
-    const newValue = this.formatSeconds(this.durationInSeconds);
-    this.durationValue = newValue;
-    return newValue;
-  }
-  endValue = this.updateEndValue();
-  private setEndValue(newEnd: string) {
-    this.endValue = newEnd;
-    const parsed = this.parseSecond(newEnd)
-    if (parsed != null && parsed != this.endInSeconds) {
-      const newDuration = parsed - this.startInSeconds;
-      if (newDuration >= 0) {
-        this.durationInSeconds = newDuration;
-        this.updateDurationValue();
-        this.updateEndValue();
-      } else {
-        this.startInSeconds = this.startInSeconds + newDuration; // newDuration is negative.
-        this.durationInSeconds = 0;
-        this.updateStartValue();
-        this.updateDurationValue();
-        this.updateEndValue();
-      }
-    }
-  };
-  updateEndValue (): string {
-    const newValue = this.formatSeconds(this.startInSeconds + this.durationInSeconds);
-    this.endValue = newValue;
-    return newValue;
-  }
-
-  private formatSeconds (seconds: number): string {
-    return seconds.toFixed(2);
-  }
-  private parseSecond (raw: string): number | null {
-    const parsed = Number.parseFloat(raw);
-    if (parsed == NaN) {
-      return null;
+  set endInSeconds (newEnd: number) {
+    const newDuration = newEnd - this.startInSeconds;
+    if (newDuration >= 0) {
+      this.durationInSeconds = newDuration;
     } else {
-      return parsed;
+      this.startInSeconds = this.startInSeconds + newDuration; // newDuration is negative.
+      this.durationInSeconds = 0;
     }
   }
 

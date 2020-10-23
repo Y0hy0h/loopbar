@@ -1,5 +1,5 @@
 <template>
-  <div class="videoArea">
+  <div class="container">
     <label>
       Choose a video file
       <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
@@ -30,7 +30,7 @@ export default defineComponent({
       requestAnimationFrame(updateCurrentTime)
     }
     onMounted(updateCurrentTime)
-    
+
     return {
       videoFileInput,
       player,
@@ -64,7 +64,7 @@ export default defineComponent({
     align-items: flex-start;
   }
 
-  .videoArea {
+  .container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -72,6 +72,5 @@ export default defineComponent({
 
   #player {
     max-width: 100%;
-    max-height: 50vh;
   }
 </style>

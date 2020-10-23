@@ -1,13 +1,17 @@
 <template>
-  <VideoPlayer ref="player" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
-  <span class="currentTime">Beat #{{bar}} ({{currentTimeIndicator}})</span>
-  <div class="loop-area">
-    <NumberInput v-model="range.start">Start</NumberInput>
-    <NumberInput v-model="range.duration">Duration</NumberInput>
-    <NumberInput v-model="range.end">End</NumberInput>
-    <button @click="toggleLoop()">Toggle looping</button>
+  <div class="container">
+    <div class="video-area">
+      <VideoPlayer ref="player" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
+      <span class="currentTime">Beat #{{bar}} ({{currentTimeIndicator}})</span>
+    </div>
+    <div class="loop-area">
+      <button @click="toggleLoop()">{{loopButtonText}}</button>
+      <NumberInput v-model="range.start">Start</NumberInput>
+      <NumberInput v-model="range.duration">Duration</NumberInput>
+      <NumberInput v-model="range.end">End</NumberInput>
+    </div>
+    <BeatSettings :currentTime="currentTime" @updated-period="period = $event" @updated-offset="offset = $event"></BeatSettings>
   </div>
-  <BeatSettings :currentTime="currentTime" @updated-period="period = $event" @updated-offset="offset = $event"></BeatSettings>
 </template>
 
 <script lang="ts">
@@ -46,6 +50,16 @@ export default defineComponent({
 
     const range = reactive(new Range(0, 1))
     const intervallId = ref<number | null>(null)
+    const isLooping = computed(() => {
+      return intervallId.value != null
+    })
+    const loopButtonText = computed(() => {
+      if (!isLooping.value) {
+        return "Start loop"
+      } else {
+        return "Stop loop"
+      }
+    })
 
     return {
       player,
@@ -55,7 +69,8 @@ export default defineComponent({
       offset,
       bar,
       range,
-      intervallId
+      intervallId,
+      loopButtonText
     }
   },
   methods: {
@@ -94,11 +109,30 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 label {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+.container {
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.video-area {
+ display: flex;
+ flex-direction: column;
+ align-items: flex-start;
+}
+
+.currentTime {
+  font-family: monospace;
+  font-size: 1.2rem;
 }
 
 .loop-area {
@@ -106,9 +140,4 @@ label {
   flex-direction: column;
   align-items: flex-start;
 }
-
-  .currentTime {
-    font-family: monospace;
-    font-size: 2rem;
-  }
 </style>

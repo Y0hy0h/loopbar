@@ -12,7 +12,8 @@
     <label>
       Override with known offset
       <input type="checkbox" v-model="useCustomOffset"/>
-      <input type="range" min="0" max="1" step="0.01" v-model="customOffset"/>
+      <NumberInput v-model="customOffset"></NumberInput>
+      <input type="range" min="0" max="1" step="0.01" v-model.number="customOffset"/>
     </label>
   </div>
 </template>

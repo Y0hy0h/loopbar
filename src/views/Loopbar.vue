@@ -2,15 +2,25 @@
   <div class="container">
     <div class="video-area">
       <VideoPlayer ref="player" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
-      <span class="currentTime">Beat #{{bar}} ({{currentTimeIndicator}})</span>
+      <span class="currentTime">
+        <span v-if="!beatMeter.needsMoreBeats">
+          Beat #{{bar}}
+        </span>
+        <span v-else class="missing-beats">
+          Set bpm below.
+        </span>
+        ({{currentTimeIndicator}})
+      </span>
     </div>
     <div class="loop-area">
       <button @click="toggleLoop()">{{loopButtonText}}</button>
-      <NumberInput v-model="range.start">Start</NumberInput>
-      <NumberInput v-model="range.duration">Duration</NumberInput>
-      <NumberInput v-model="range.end">End</NumberInput>
+      <div class="loop-settings">
+        <NumberInput v-model="range.start">Start</NumberInput>
+        <NumberInput v-model="range.duration">Duration</NumberInput>
+        <NumberInput v-model="range.end">End</NumberInput>
+      </div>
     </div>
-    <BeatSettings :currentTime="currentTime" @updated-period="period = $event" @updated-offset="offset = $event" @start-play="player.play()"></BeatSettings>
+    <BeatSettings ref="beatSettings" :currentTime="currentTime" v-model:beatMeter="beatMeter" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 
@@ -23,6 +33,7 @@ import NumberInput from '@/components/number-input.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
+import { BeatMeter } from '@/logic/beatMeter'
 
 export default defineComponent({
   components: {
@@ -37,12 +48,12 @@ export default defineComponent({
       return timecodeFromSecond(currentTime.value)
     })
 
-    const period = ref(0)
-    const offset = ref(0)
+    const beatMeter = reactive(new BeatMeter())
+
     const bar = computed(() => {
-      if (period.value > 0) {
-        const offsetSeconds = offset.value * period.value
-        return Math.floor((currentTime.value - offsetSeconds) / period.value)
+      if (beatMeter.period > 0) {
+        const offsetSeconds = beatMeter.offset * beatMeter.period
+        return Math.floor((currentTime.value - offsetSeconds) / beatMeter.period)
       } else {
         return 0
       }
@@ -65,8 +76,7 @@ export default defineComponent({
       player,
       currentTime,
       currentTimeIndicator,
-      period,
-      offset,
+      beatMeter,
       bar,
       range,
       intervallId,
@@ -109,13 +119,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-label {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
+<style scoped lang="scss">
 .container {
   max-width: 32rem;
   display: flex;
@@ -128,6 +132,7 @@ label {
  display: flex;
  flex-direction: column;
  align-items: flex-start;
+ gap: 0.5rem;
 }
 
 .currentTime {
@@ -136,8 +141,26 @@ label {
 }
 
 .loop-area {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.loop-settings {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+
+  * {
+    flex: 1;
+  }
+}
+
+.missing-beats {
+  font-style: italic;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <label>
     <slot></slot>
-    <input type="text" inputmode="decimal" :value="inputText" @input="newInput($event.target.value)"/>
+    <input type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
   </label>
 </template>
 
@@ -67,10 +67,15 @@ function formatValue (value: number): string {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   label {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+
+    input {
+      min-width: 6rem;
+      width: 100%;
+    }
   }
 </style>

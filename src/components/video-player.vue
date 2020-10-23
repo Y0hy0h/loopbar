@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="video-container">
     <label>
       Choose a video file
       <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
@@ -64,10 +64,11 @@ export default defineComponent({
     align-items: flex-start;
   }
 
-  .container {
+  .video-container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
   }
 
   #player {

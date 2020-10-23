@@ -3,9 +3,9 @@
     <div class="bpm-display">
       <span v-if="!beatMeter.needsMoreBeats" class="bpm">
         <span class="beat-indicator">{{beatIndicator}}</span>
-        {{bpmDisplay}} <abbr title="Beats per minute">bpm</abbr>
+        {{bpmDisplay}} bpm
       </span>
-      <span v-else class="missing-beats">Press the button below to set the <abbr title="Beats per minute">bpm</abbr>.</span>
+      <span v-else class="missing-beats">Set the beats per minute (bpm) by tapping the following button.</span>
     </div>
     <button @mousedown="tappedBeat">Tap me to the beat</button>
     <button @click="resetClicked">Reset bpm</button>
@@ -17,7 +17,7 @@ import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
 
 import NumberInput from '@/components/number-input.vue'
 
-import { timecodeFromSecond } from '../logic/time'
+import { timecodeFromSecond } from '@/logic/time'
 import { BeatMeter } from '@/logic/beatMeter'
 
 export default defineComponent({
@@ -25,33 +25,25 @@ export default defineComponent({
     NumberInput
   },
   props: {
+    beatMeter: {
+      type: Object as PropType<BeatMeter>,
+      required: true
+    },
     currentTime: {
       type: Number,
       required: true
     }
   },
   emits: [
-    "updated-period",
-    "updated-offset",
+    "update:beatMeter",
     "start-play",
   ],
   setup (props, ctx) {
-    const beatMeter = reactive(new BeatMeter())
-
-    const period = computed(() => {
-      return beatMeter.period
-    })
-    watch(period, value => ctx.emit("updated-period", value))
-    const offset = computed(() => {
-      return beatMeter.offset
-    })
-    watch(offset, value => ctx.emit("updated-offset", value))
-
     const clap = computed(() => {
-      const offsetSeconds = offset.value * period.value
-      const beatPhase = (props.currentTime - offsetSeconds) % period.value
+      const offsetSeconds = props.beatMeter.offset * props.beatMeter.period
+      const beatPhase = (props.currentTime - offsetSeconds) % props.beatMeter.period
       // Only clap for 25 % of the beat.
-      return (beatPhase / period.value) < 0.25
+      return (beatPhase / props.beatMeter.period) < 0.25
     })
     const beatIndicator = computed(() => {
       if (clap.value) {
@@ -61,18 +53,15 @@ export default defineComponent({
       }
     })
 
-    const bpmDisplay = computed(() => beatMeter.bpm.toFixed(1))
+    const bpmDisplay = computed(() => props.beatMeter.bpm.toFixed(1))
     const offsetDisplay = computed(() => {
-      const offsetPercent = beatMeter.offset * 100
+      const offsetPercent = props.beatMeter.offset * 100
       return `${offsetPercent.toFixed(0)} %`
     })
 
     return {
-      beatMeter,
       bpmDisplay,
       offsetDisplay,
-      period,
-      offset,
       beatIndicator
     }
   },
@@ -99,6 +88,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.5rem;
   }
 
   .beat-indicator {

@@ -79,7 +79,6 @@ function getDistancesBetweenBeats (beats: number[]): number[] {
 }
 
 function calculateOffset (beats: number[], period: number): number {
-    console.log(period, beats)
   if (period == 0) {
     return 0
   }

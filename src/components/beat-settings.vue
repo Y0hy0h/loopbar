@@ -1,13 +1,13 @@
 <template>
   <div class="beat-settings">
+    <button @mousedown="tappedBeat">Tap me to the beat</button>
     <div class="bpm-display">
       <span v-if="!beatMeter.needsMoreBeats" class="bpm">
         <span class="beat-indicator">{{beatIndicator}}</span>
         {{bpmDisplay}} bpm
       </span>
-      <span v-else class="missing-beats">Set the beats per minute (bpm) by tapping the following button.</span>
+      <span v-else class="missing-beats">Set the beats per minute (bpm) by tapping the button.</span>
     </div>
-    <button @mousedown="tappedBeat">Tap me to the beat</button>
     <button @click="resetClicked">Reset bpm</button>
   </div>
 </template>
@@ -89,6 +89,10 @@ export default defineComponent({
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  .bpm-display {
+    display: inline-block;
   }
 
   .beat-indicator {

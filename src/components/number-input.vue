@@ -1,7 +1,11 @@
 <template>
   <label>
     <slot></slot>
-    <input type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
+    <div class="inputs">
+      <button @click="decrement">⬅️</button>
+      <input type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
+      <button @click="increment">➡️</button>
+    </div>
   </label>
 </template>
 
@@ -45,6 +49,12 @@ export default defineComponent({
       if (parsed != null) {
         this.$emit('update:modelValue', parsed)
       }
+    },
+    increment () {
+      this.$emit('update:modelValue', this.modelValue + 1)
+    },
+    decrement () {
+      this.$emit('update:modelValue', this.modelValue - 1)
     }
   }
 })
@@ -74,8 +84,22 @@ function formatValue (value: number): string {
     align-items: flex-start;
 
     input {
-      min-width: 6rem;
       width: 100%;
+    }
+  }
+
+  .inputs {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    button {
+      padding: 0.2rem;
+    }
+
+    input {
+      padding-inline: 0.5rem;
+      max-width: 3rem;
     }
   }
 </style>

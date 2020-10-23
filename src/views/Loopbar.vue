@@ -15,9 +15,9 @@
     <div class="loop-area">
       <button @click="toggleLoop()">{{loopButtonText}}</button>
       <div class="loop-settings">
-        <NumberInput v-model="range.start">Start</NumberInput>
-        <NumberInput v-model="range.duration">Duration</NumberInput>
-        <NumberInput v-model="range.end">End</NumberInput>
+        <NumberInput v-model="range.start"><span class="label">from <button @click="loopStartToNowClicked()">now</button></span></NumberInput>
+        <NumberInput v-model="range.duration">for duration</NumberInput>
+        <NumberInput v-model="range.end"><span class="label">to <button @click="loopEndToNowClicked()">now</button></span></NumberInput>
       </div>
     </div>
     <BeatSettings ref="beatSettings" :currentTime="currentTime" v-model:beatMeter="beatMeter" @start-play="player.play()"></BeatSettings>
@@ -93,7 +93,7 @@ export default defineComponent({
     },
     startLoop () {
       this.$_playLoopStart()
-      const durationInMilliseconds = this.range.duration * 1000
+      const durationInMilliseconds = this.range.duration * this.beatMeter.period * 1000
       this.intervallId = setInterval(
         () => this.$_playLoopStart(),
         durationInMilliseconds
@@ -108,12 +108,22 @@ export default defineComponent({
     videoPaused () {
       this.stopLoop()
     },
+    loopStartToNowClicked() {
+      this.range.start = this.bar
+    },
+    loopEndToNowClicked() {
+      this.range.end = this.bar
+    },
     $_playLoopStart () {
-      this.player.seekToSecond(this.range.start)
+      const startInSeconds = this.$_secondFromBar(this.range.start)
+      this.player.seekToSecond(startInSeconds)
       this.player.play()
     },
     $_pause () {
       this.player.pause()
+    },
+    $_secondFromBar(bar: number): number {
+      return bar * this.beatMeter.period + this.beatMeter.offset
     }
   }
 })
@@ -152,11 +162,14 @@ export default defineComponent({
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
+  align-items: flex-end;
   gap: 1rem;
 
-  * {
-    flex: 1;
+  .label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
   }
 }
 

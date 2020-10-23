@@ -58,7 +58,7 @@ export default defineComponent({
 
 function parseInput (input: string): number | null {
   const parsed = Number.parseFloat(input)
-  if (isNaN(parsed)) {
+  if (!isNaN(parsed)) {
     return parsed
   } else {
     return null

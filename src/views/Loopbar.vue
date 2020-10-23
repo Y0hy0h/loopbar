@@ -15,9 +15,15 @@
     <div class="loop-area">
       <button @click="toggleLoop()">{{loopButtonText}}</button>
       <div class="loop-settings">
-        <NumberInput v-model="range.start"><span class="label">from <button @click="loopStartToNowClicked()">now</button></span></NumberInput>
+        <div class="input-with-button">
+          <NumberInput v-model="range.start">from</NumberInput>
+          <button @click="loopStartToNowClicked()">set to now</button>
+        </div>
         <NumberInput v-model="range.duration">for duration</NumberInput>
-        <NumberInput v-model="range.end"><span class="label">to <button @click="loopEndToNowClicked()">now</button></span></NumberInput>
+        <div class="input-with-button">
+          <NumberInput v-model="range.end">to</NumberInput>
+          <button @click="loopEndToNowClicked()">set to now</button>
+        </div>
       </div>
     </div>
     <BeatSettings ref="beatSettings" :currentTime="currentTime" v-model:beatMeter="beatMeter" @start-play="player.play()"></BeatSettings>
@@ -162,14 +168,13 @@ export default defineComponent({
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 1rem;
 
-  .label {
+  .input-with-button {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
   }
 }
 

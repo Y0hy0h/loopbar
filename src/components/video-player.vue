@@ -9,15 +9,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue'
-
-import { timecodeFromSecond } from '../logic/time'
+import { defineComponent, onMounted, ref } from 'vue'
 
 export default defineComponent({
   emits: [
-    "updated-time",
-    "started-playing",
-    "paused",
+    'updated-time',
+    'started-playing',
+    'paused'
   ],
   setup (props, ctx) {
     const videoFileInput = ref<HTMLInputElement>(null!)
@@ -26,7 +24,7 @@ export default defineComponent({
     const currentTime = ref(0)
     const updateCurrentTime = () => {
       currentTime.value = player.value.currentTime
-      ctx.emit("updated-time", currentTime.value)
+      ctx.emit('updated-time', currentTime.value)
       requestAnimationFrame(updateCurrentTime)
     }
     onMounted(updateCurrentTime)
@@ -34,7 +32,7 @@ export default defineComponent({
     return {
       videoFileInput,
       player,
-      currentTime,
+      currentTime
     }
   },
   methods: {
@@ -52,7 +50,7 @@ export default defineComponent({
       const videoFile = this.videoFileInput.files?.[0]
       const fileUrl = URL.createObjectURL(videoFile)
       this.player.src = fileUrl
-    },
+    }
   }
 })
 </script>

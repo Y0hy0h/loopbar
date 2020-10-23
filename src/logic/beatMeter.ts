@@ -1,5 +1,3 @@
-import { timecodeFromSecond } from './time'
-
 export class BeatMeter {
   constructor (
         private beats: number[] = []
@@ -9,14 +7,15 @@ export class BeatMeter {
 
     private period_ = 0
     public get period () {
-        return this.period_
+      return this.period_
     }
+
     public get bpm () {
-        if (this.period == 0) {
-            return 0
-        } else {
-            return 60 / this.period
-        }
+      if (this.period === 0) {
+        return 0
+      } else {
+        return 60 / this.period
+      }
     }
 
     private offset_ = 0
@@ -25,7 +24,7 @@ export class BeatMeter {
     }
 
     public get needsMoreBeats () {
-        return this.beats.length < 2
+      return this.beats.length < 2
     }
 
     public addBeats (...offsetsInSeconds: number[]) {
@@ -36,8 +35,8 @@ export class BeatMeter {
     }
 
     public reset () {
-        this.beats = []
-        this.calculate(this.beats)
+      this.beats = []
+      this.calculate(this.beats)
     }
 
     private calculate (beats: number[]) {
@@ -79,7 +78,7 @@ function getDistancesBetweenBeats (beats: number[]): number[] {
 }
 
 function calculateOffset (beats: number[], period: number): number {
-  if (period == 0) {
+  if (period === 0) {
     return 0
   }
 
@@ -90,13 +89,13 @@ function calculateOffset (beats: number[], period: number): number {
   return averageOffset / period
 }
 
-function removeOutliers(values: number[], denominator: number = 4, numerator = 1): number[] {
-    const highestIndex = values.length
-    const first = Math.floor((highestIndex / denominator) * numerator)
-    const last = Math.ceil((highestIndex / denominator) * (denominator - numerator))
-    return values.slice(first, last)
+function removeOutliers (values: number[], denominator = 4, numerator = 1): number[] {
+  const highestIndex = values.length
+  const first = Math.floor((highestIndex / denominator) * numerator)
+  const last = Math.ceil((highestIndex / denominator) * (denominator - numerator))
+  return values.slice(first, last)
 }
 
-function sortNumerically(values: number[]): number[] {
-    return values.sort((a, b) => a - b)
+function sortNumerically (values: number[]): number[] {
+  return values.sort((a, b) => a - b)
 }

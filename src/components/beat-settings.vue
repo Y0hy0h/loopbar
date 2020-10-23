@@ -13,17 +13,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, PropType } from 'vue'
 
-import NumberInput from '@/components/number-input.vue'
-
-import { timecodeFromSecond } from '@/logic/time'
 import { BeatMeter } from '@/logic/beatMeter'
 
 export default defineComponent({
-  components: {
-    NumberInput
-  },
   props: {
     beatMeter: {
       type: Object as PropType<BeatMeter>,
@@ -35,10 +29,10 @@ export default defineComponent({
     }
   },
   emits: [
-    "update:beatMeter",
-    "start-play",
+    'update:beatMeter',
+    'start-play'
   ],
-  setup (props, ctx) {
+  setup (props) {
     const clap = computed(() => {
       const offsetSeconds = props.beatMeter.offset * props.beatMeter.period
       const beatPhase = (props.currentTime - offsetSeconds) % props.beatMeter.period
@@ -47,9 +41,9 @@ export default defineComponent({
     })
     const beatIndicator = computed(() => {
       if (clap.value) {
-        return "👏"
+        return '👏'
       } else {
-        return "👐"
+        return '👐'
       }
     })
 
@@ -67,7 +61,7 @@ export default defineComponent({
   },
   methods: {
     tappedBeat () {
-      this.$emit("start-play")
+      this.$emit('start-play')
       this.beatMeter.addBeats(this.currentTime)
     },
     resetClicked () {

@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, reactive, ref } from 'vue'
 
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
@@ -66,9 +66,9 @@ export default defineComponent({
     })
     const loopButtonText = computed(() => {
       if (!isLooping.value) {
-        return "Start loop"
+        return 'Start loop'
       } else {
-        return "Stop loop"
+        return 'Stop loop'
       }
     })
 
@@ -108,10 +108,10 @@ export default defineComponent({
     videoPaused () {
       this.stopLoop()
     },
-    loopStartToNowClicked() {
+    loopStartToNowClicked () {
       this.range.start = this.bar
     },
-    loopEndToNowClicked() {
+    loopEndToNowClicked () {
       this.range.end = this.bar
     },
     $_playLoopStart () {
@@ -122,7 +122,7 @@ export default defineComponent({
     $_pause () {
       this.player.pause()
     },
-    $_secondFromBar(bar: number): number {
+    $_secondFromBar (bar: number): number {
       return bar * this.beatMeter.period + this.beatMeter.offset
     }
   }

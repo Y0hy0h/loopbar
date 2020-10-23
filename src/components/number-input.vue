@@ -12,8 +12,6 @@
 <script lang="ts">
 import { defineComponent, watch, ref, toRefs } from 'vue'
 
-import { timecodeFromSecond } from '../logic/time'
-
 export default defineComponent({
   props: {
     modelValue: {
@@ -31,13 +29,12 @@ export default defineComponent({
 
     watch(modelValue, (newValue) => {
       const parsed = parseInput(inputText.value)
-      if (parsed != null && parsed != newValue) {
+      if (parsed != null && parsed !== newValue) {
         inputText.value = formatValue(newValue)
       }
     })
 
     return {
-      modelValue,
       inputText
     }
   },
@@ -61,7 +58,7 @@ export default defineComponent({
 
 function parseInput (input: string): number | null {
   const parsed = Number.parseFloat(input)
-  if (parsed != NaN) {
+  if (isNaN(parsed)) {
     return parsed
   } else {
     return null
@@ -69,7 +66,7 @@ function parseInput (input: string): number | null {
 }
 
 function formatValue (value: number): string {
-  if (value % 1 == 0) { // if it is a whole number
+  if (value % 1 === 0) { // if it is a whole number
     return value.toString()
   } else {
     return value.toFixed(2)

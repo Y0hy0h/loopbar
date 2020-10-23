@@ -12,12 +12,20 @@ export class BeatMeter {
         return this.period_
     }
     public get bpm () {
-      return 60 / this.period
+        if (this.period == 0) {
+            return 0
+        } else {
+            return 60 / this.period
+        }
     }
 
     private offset_ = 0
     public get offset () {
       return this.offset_
+    }
+
+    public get needsMoreBeats () {
+        return this.beats.length < 2
     }
 
     public addBeats (...offsetsInSeconds: number[]) {
@@ -34,12 +42,12 @@ export class BeatMeter {
 
     private calculate (beats: number[]) {
       this.period_ = calculatePeriod(beats)
-      this.offset_ = calculateOffset(beats, this.bpm)
+      this.offset_ = calculateOffset(beats, this.period)
     }
 }
 
 function calculatePeriod (beats: number[]): number {
-  if (beats.length == 0) {
+  if (beats.length <= 1) {
     return 0
   }
 
@@ -70,21 +78,21 @@ function getDistancesBetweenBeats (beats: number[]): number[] {
   return distances
 }
 
-function calculateOffset (beats: number[], bpm: number): number {
-  if (bpm == 0) {
+function calculateOffset (beats: number[], period: number): number {
+    console.log(period, beats)
+  if (period == 0) {
     return 0
   }
 
-  const hertz = 60 / bpm
-  const offsetsWithOutliers = sortNumerically(beats.map(beat => beat % hertz))
+  const offsetsWithOutliers = sortNumerically(beats.map(beat => beat % period))
   const offsets = removeOutliers(offsetsWithOutliers)
 
   const averageOffset = offsets.reduce((accu, next) => accu + next, 0) / offsets.length
-  return averageOffset / hertz
+  return averageOffset / period
 }
 
 function removeOutliers(values: number[], denominator: number = 4, numerator = 1): number[] {
-    const highestIndex = values.length - 1
+    const highestIndex = values.length
     const first = Math.floor((highestIndex / denominator) * numerator)
     const last = Math.ceil((highestIndex / denominator) * (denominator - numerator))
     return values.slice(first, last)

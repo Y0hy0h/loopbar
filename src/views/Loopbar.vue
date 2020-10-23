@@ -10,7 +10,7 @@
       <NumberInput v-model="range.duration">Duration</NumberInput>
       <NumberInput v-model="range.end">End</NumberInput>
     </div>
-    <BeatSettings :currentTime="currentTime" @updated-period="period = $event" @updated-offset="offset = $event"></BeatSettings>
+    <BeatSettings :currentTime="currentTime" @updated-period="period = $event" @updated-offset="offset = $event" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 

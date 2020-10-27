@@ -1,25 +1,32 @@
 <template>
-  <div class="video-container">
-    <label>
-      Choose a video file
-      <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
-    </label>
-    <video ref="player" id="player" controls @playing="$emit('started-playing')" @pause="$emit('paused')"></video>
-  </div>
+  <video ref="player" id="player" :src="source" controls @playing="$emit('started-playing')" @pause="$emit('paused')"></video>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 
 export default defineComponent({
+  props: {
+    file: {
+      type: File
+    }
+  },
   emits: [
     'updated-time',
     'started-playing',
     'paused'
   ],
   setup (props, ctx) {
-    const videoFileInput = ref<HTMLInputElement>(null!)
     const player = ref<HTMLVideoElement>(null!)
+
+    const source = computed(() => {
+      if (props.file != null) {
+        const fileUrl = URL.createObjectURL(props.file)
+        return fileUrl
+      } else {
+        return null
+      }
+    })
 
     const currentTime = ref(0)
     const updateCurrentTime = () => {
@@ -30,8 +37,8 @@ export default defineComponent({
     onMounted(updateCurrentTime)
 
     return {
-      videoFileInput,
       player,
+      source,
       currentTime
     }
   },
@@ -45,12 +52,6 @@ export default defineComponent({
     pause () {
       this.player.pause()
     },
-    videoFileSelected () {
-      // TODO: Handle case where no file is present.
-      const videoFile = this.videoFileInput.files?.[0]
-      const fileUrl = URL.createObjectURL(videoFile)
-      this.player.src = fileUrl
-    }
   }
 })
 </script>

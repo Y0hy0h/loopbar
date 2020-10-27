@@ -14,7 +14,7 @@ export class BeatMeter {
       if (this.period === 0) {
         return 0
       } else {
-        return 60 / this.period
+        return bpmFromPeriod(this.period)
       }
     }
 
@@ -43,6 +43,14 @@ export class BeatMeter {
       this.period_ = calculatePeriod(beats)
       this.offset_ = calculateOffset(beats, this.period)
     }
+}
+
+export function bpmFromPeriod(period: number): number {
+  return 60 / period
+}
+
+export function periodFromBpm(bpm: number): number {
+  return 60 / bpm
 }
 
 function calculatePeriod (beats: number[]): number {

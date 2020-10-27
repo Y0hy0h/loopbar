@@ -1,12 +1,14 @@
 <template>
-  <label>
-    <slot></slot>
-    <div class="inputs">
-      <button @click="decrement">⬅️</button>
-      <input type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
-      <button @click="increment">➡️</button>
-    </div>
-  </label>
+  <div>
+    <label>
+      <slot></slot>
+      <div class="inputs">
+        <button @click="decrement">⬅️</button>
+        <input type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
+        <button @click="increment">➡️</button>
+      </div>
+    </label>
+  </div>
 </template>
 
 <script lang="ts">

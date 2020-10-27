@@ -1,15 +1,13 @@
 <template>
   <div class="container">
     <div class="video-area">
-      <VideoPlayer ref="player" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
+      <label>
+        Choose a video file
+        <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
+      </label>
+      <VideoPlayer ref="player" :file="videoFile" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
       <span class="currentTime">
-        <span v-if="!beatMeter.needsMoreBeats">
-          Beat #{{bar}}
-        </span>
-        <span v-else class="missing-beats">
-          Set bpm below.
-        </span>
-        ({{currentTimeIndicator}})
+        Beat #{{bar}} ({{currentTimeIndicator}})
       </span>
     </div>
     <div class="loop-area">
@@ -26,7 +24,7 @@
         </div>
       </div>
     </div>
-    <BeatSettings ref="beatSettings" :currentTime="currentTime" v-model:beatMeter="beatMeter" @start-play="player.play()"></BeatSettings>
+    <BeatSettings :currentTime="currentTime" :initialBpm="bpm" @update:bpm="bpm = $event" :initialOffset="offset" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 
@@ -39,7 +37,7 @@ import NumberInput from '@/components/number-input.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
-import { BeatMeter } from '@/logic/beatMeter'
+import { BeatMeter, periodFromBpm } from '@/logic/beatMeter'
 
 export default defineComponent({
   components: {
@@ -48,18 +46,22 @@ export default defineComponent({
     BeatSettings
   },
   setup () {
+    const videoFileInput = ref<HTMLInputElement>(null!)
+    const videoFile = ref<File | null>(null)
+
     const player = ref<typeof VideoPlayer>(null!)
     const currentTime = ref(0)
     const currentTimeIndicator = computed(() => {
       return timecodeFromSecond(currentTime.value)
     })
 
-    const beatMeter = reactive(new BeatMeter())
-
+    const bpm = ref(120)
+    const period = computed(() => periodFromBpm(bpm.value))
+    const offset = ref(0)
     const bar = computed(() => {
-      if (beatMeter.period > 0) {
-        const offsetSeconds = beatMeter.offset * beatMeter.period
-        return Math.floor((currentTime.value - offsetSeconds) / beatMeter.period)
+      if (period.value > 0) {
+        const offsetSeconds = offset.value * period.value
+        return Math.floor((currentTime.value - offsetSeconds) / period.value)
       } else {
         return 0
       }
@@ -79,10 +81,14 @@ export default defineComponent({
     })
 
     return {
+      videoFileInput,
+      videoFile,
       player,
       currentTime,
       currentTimeIndicator,
-      beatMeter,
+      bpm,
+      period,
+      offset,
       bar,
       range,
       intervallId,
@@ -90,6 +96,17 @@ export default defineComponent({
     }
   },
   methods: {
+    videoFileSelected () {
+      const files = this.videoFileInput.files
+      if (files === null || files.length === 0) {
+        return
+      }
+
+      const newFile = files[0]
+      if (newFile != null) {
+        this.videoFile = newFile
+      }
+    },
     toggleLoop () {
       if (this.intervallId == null) {
         this.startLoop()
@@ -99,7 +116,7 @@ export default defineComponent({
     },
     startLoop () {
       this.$_playLoopStart()
-      const durationInMilliseconds = this.range.duration * this.beatMeter.period * 1000
+      const durationInMilliseconds = this.range.duration * this.period * 1000
       this.intervallId = setInterval(
         () => this.$_playLoopStart(),
         durationInMilliseconds
@@ -129,7 +146,7 @@ export default defineComponent({
       this.player.pause()
     },
     $_secondFromBar (bar: number): number {
-      return bar * this.beatMeter.period + this.beatMeter.offset
+      return bar * this.period + this.offset
     }
   }
 })

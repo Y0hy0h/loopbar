@@ -110,7 +110,10 @@ export default defineComponent({
       player.value.play()
     }
     watch([isLooping, currentTimeDisplay, range] as [Ref<boolean>, Ref<DOMHighResTimeStamp>, Range], ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
-      const startTime = secondFromBar(currentRange.start, period.value, offset.value)
+      // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
+      // To prevent that we get stuck in a loop, we do not restart the loop if we are very close to the start time.
+      const tolerance = 0.1
+      const startTime = secondFromBar(currentRange.start, period.value, offset.value) - tolerance
       const endTime = secondFromBar(currentRange.end, period.value, offset.value)
       
       const insideOfLoop = startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime

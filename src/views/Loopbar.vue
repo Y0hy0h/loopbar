@@ -5,7 +5,7 @@
         Choose a video file
         <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
       </label>
-      <VideoPlayer ref="player" :file="videoFile" @updated-time="currentTime = $event" @paused="videoPaused"></VideoPlayer>
+      <VideoPlayer ref="player" :file="videoFile" @updated-time-display="currentTimeDisplay = $event" @paused="videoPaused"></VideoPlayer>
       <span class="currentTime">
         Beat #{{bar}} ({{currentTimeIndicator}})
       </span>
@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    <BeatSettings :currentTime="currentTime" v-model:bpm="bpm" v-model:offset="offset" @start-play="player.play()"></BeatSettings>
+    <BeatSettings :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" v-model:bpm="bpm" v-model:offset="offset" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 
@@ -50,9 +50,9 @@ export default defineComponent({
     const videoFile = ref<File | null>(null)
 
     const player = ref<typeof VideoPlayer>(null!)
-    const currentTime = ref(0)
+    const currentTimeDisplay = ref(0)
     const currentTimeIndicator = computed(() => {
-      return timecodeFromSecond(currentTime.value)
+      return timecodeFromSecond(currentTimeDisplay.value)
     })
 
     const bpm = ref(120)
@@ -61,7 +61,7 @@ export default defineComponent({
     const bar = computed(() => {
       if (period.value > 0) {
         const offsetSeconds = offset.value * period.value
-        return Math.floor((currentTime.value - offsetSeconds) / period.value)
+        return Math.floor((currentTimeDisplay.value - offsetSeconds) / period.value)
       } else {
         return 0
       }
@@ -110,7 +110,7 @@ export default defineComponent({
       videoFileInput,
       videoFile,
       player,
-      currentTime,
+      currentTimeDisplay,
       currentTimeIndicator,
       bpm,
       period,
@@ -131,6 +131,13 @@ export default defineComponent({
       const newFile = files[0]
       if (newFile != null) {
         this.videoFile = newFile
+      }
+    },
+    getCurrentTime () {
+      if (this.player !== null) {
+        return this.player.getCurrentTime()
+      } else {
+        return 0
       }
     },
     toggleLoop () {

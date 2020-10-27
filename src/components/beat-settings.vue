@@ -56,8 +56,12 @@ export default defineComponent({
       type: Number,
       required: true
     },
-    currentTime: {
+    currentTimeDisplay: {
       type: Number,
+      required: true,
+    },
+    getCurrentTime: {
+      type: Function as PropType<() => DOMHighResTimeStamp>,
       required: true
     }
   },
@@ -106,7 +110,7 @@ export default defineComponent({
 
     const clap = computed(() => {
       const offsetSeconds = offset.value * period.value
-      const beatPhase = (props.currentTime - offsetSeconds) % period.value
+      const beatPhase = (props.currentTimeDisplay - offsetSeconds) % period.value
       // Only clap for 25 % of the beat.
       return (beatPhase / period.value) < 0.25
     })
@@ -142,7 +146,7 @@ export default defineComponent({
   methods: {
     tappedBeat () {
       this.$emit('start-play')
-      this.beatMeter.addBeats(this.currentTime)
+      this.beatMeter.addBeats(this.getCurrentTime())
     },
     resetClicked () {
       this.beatMeter.reset()

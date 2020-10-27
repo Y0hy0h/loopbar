@@ -12,7 +12,7 @@ export default defineComponent({
     }
   },
   emits: [
-    'updated-time',
+    'updated-time-display',
     'started-playing',
     'paused'
   ],
@@ -28,10 +28,10 @@ export default defineComponent({
       }
     })
 
-    const currentTime = ref(0)
+    const currentTimeDisplay = ref(0)
     const updateCurrentTime = () => {
-      currentTime.value = player.value.currentTime
-      ctx.emit('updated-time', currentTime.value)
+      currentTimeDisplay.value = player.value.currentTime
+      ctx.emit('updated-time-display', currentTimeDisplay.value)
       requestAnimationFrame(updateCurrentTime)
     }
     onMounted(updateCurrentTime)
@@ -39,10 +39,13 @@ export default defineComponent({
     return {
       player,
       source,
-      currentTime
+      currentTimeDisplay
     }
   },
   methods: {
+    getCurrentTime () {
+      return this.player.currentTime
+    },
     seekToSecond (second: number) {
       this.player.currentTime = second
     },

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/loopbar/precache-manifest.f41da0c7548bbcf4418cadbaee094f7f.js"
+  "/loopbar/precache-manifest.f133faba00a405e2317933560ee54741.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "loopbar"});

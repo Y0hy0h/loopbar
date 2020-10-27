@@ -4,12 +4,14 @@
       <span class="beat-indicator">{{beatIndicator}}</span>
       {{bpmDisplay}} bpm
     </div>
-    <div class="settings">
-      <div class="meter">
-        <label>
-          <input type="radio" name="beatInput" value="meter" v-model="beatInput" v-bind:disabled="beatMeter.needsMoreBeats"/>
-          Use tap settings
-        </label>
+    <div class="settings-area">
+      <div class="meter setting">
+        <div class="header">
+          <label>
+            <input type="radio" name="beatInput" value="meter" v-model="beatInput" v-bind:disabled="beatMeter.needsMoreBeats"/>
+            Use tap settings
+          </label>
+        </div>
         <button @mousedown="tappedBeat">Tap me to the beat</button>
         <div class="bpm-display">
           <span v-if="beatMeter.needsMoreBeats" class="missing-beats">
@@ -21,11 +23,13 @@
         </div>
         <button @click="resetClicked">Reset bpm</button>
       </div>
-      <div class="custom">
-        <label>
-          <input type="radio" name="beatInput" value="custom" v-model="beatInput"/>
-          Use custom settings
-        </label>
+      <div class="custom setting">
+        <div class="header">
+          <label>
+            <input type="radio" name="beatInput" value="custom" v-model="beatInput"/>
+            Use custom settings
+          </label>
+        </div>
         <NumberInput v-model="customBpm">Beats per minute (bpm)</NumberInput>
         <NumberInput v-model="customOffset">Offset</NumberInput>
       </div>
@@ -141,11 +145,15 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   label {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+
+    input[type="radio"] {
+      margin-inline-end: 0.5em;
+    }
   }
 
   .beat-settings {
@@ -156,11 +164,22 @@ export default defineComponent({
     gap: 1em;
   }
 
-  .settings {
+  .settings-area {
     align-self: stretch;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
     gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .setting {
+    padding: 0.5em;
+    border: 1px solid black;
+    border-radius: 0.1em;
+  }
+
+  .header {
+    margin-block-end: 0.5em;
   }
 
   .meter {

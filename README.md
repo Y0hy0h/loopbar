@@ -1,7 +1,7 @@
 # Loopbar
 [![Tests](https://github.com/Y0hy0h/loopbar/workflows/Tests/badge.svg)](https://github.com/Y0hy0h/loopbar/actions?query=workflow%3ATests)
 
-Loop bars from a dance video to practice. Try it out at https://y0hy0h.github.io/loopbar/.
+Loop bars from a dance video for practice. Try it out at https://y0hy0h.github.io/loopbar/.
 
 Works offline with videos from your device. Simply set the beats per minute (bpm) and then select which parts to loop.
 

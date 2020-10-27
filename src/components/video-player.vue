@@ -28,10 +28,13 @@ export default defineComponent({
       }
     })
 
-    const currentTimeDisplay = ref(0)
+    let lastCurrentTime: DOMHighResTimeStamp | null = null
     const updateCurrentTime = () => {
-      currentTimeDisplay.value = player.value.currentTime
-      ctx.emit('updated-time-display', currentTimeDisplay.value)
+      const newTime = player.value.currentTime
+      if (lastCurrentTime !== newTime) {
+        lastCurrentTime = newTime
+        ctx.emit('updated-time-display', newTime)
+      }
       requestAnimationFrame(updateCurrentTime)
     }
     onMounted(updateCurrentTime)
@@ -39,7 +42,6 @@ export default defineComponent({
     return {
       player,
       source,
-      currentTimeDisplay
     }
   },
   methods: {

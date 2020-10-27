@@ -110,8 +110,11 @@ export default defineComponent({
       player.value.play()
     }
     watch([isLooping, currentTimeDisplay, range] as [Ref<boolean>, Ref<DOMHighResTimeStamp>, Range], ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
+      const startTime = secondFromBar(currentRange.start, period.value, offset.value)
       const endTime = secondFromBar(currentRange.end, period.value, offset.value)
-      if (nowIsLooping && nowCurrentTimeDisplay > endTime) {
+      
+      const insideOfLoop = startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
+      if (nowIsLooping && !insideOfLoop) {
         playLoopStart()
       }
     })

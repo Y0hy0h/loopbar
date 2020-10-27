@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, reactive, Ref, ref, watch } from 'vue'
 
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
@@ -94,15 +94,25 @@ export default defineComponent({
     })
 
     const range = reactive(new Range(0, 1))
-    const intervallId = ref<number | null>(null)
-    const isLooping = computed(() => {
-      return intervallId.value != null
-    })
+    const isLooping = ref(false)
     const loopButtonText = computed(() => {
       if (!isLooping.value) {
         return 'Start loop'
       } else {
         return 'Stop loop'
+      }
+    })
+
+
+    const playLoopStart = () => {
+      const startInSeconds = secondFromBar(range.start, period.value, offset.value)
+      player.value.seekToSecond(startInSeconds)
+      player.value.play()
+    }
+    watch([isLooping, currentTimeDisplay, range] as [Ref<boolean>, Ref<DOMHighResTimeStamp>, Range], ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
+      const endTime = secondFromBar(currentRange.end, period.value, offset.value)
+      if (nowIsLooping && nowCurrentTimeDisplay > endTime) {
+        playLoopStart()
       }
     })
 
@@ -116,8 +126,8 @@ export default defineComponent({
       period,
       offset,
       bar,
+      isLooping,
       range,
-      intervallId,
       loopButtonText
     }
   },
@@ -141,25 +151,17 @@ export default defineComponent({
       }
     },
     toggleLoop () {
-      if (this.intervallId == null) {
+      if (!this.isLooping) {
         this.startLoop()
       } else {
         this.stopLoop()
       }
     },
     startLoop () {
-      this.$_playLoopStart()
-      const durationInMilliseconds = this.range.duration * this.period * 1000
-      this.intervallId = setInterval(
-        () => this.$_playLoopStart(),
-        durationInMilliseconds
-      )
+      this.isLooping = true
     },
     stopLoop () {
-      if (this.intervallId != null) {
-        clearInterval(this.intervallId)
-        this.intervallId = null
-      }
+      this.isLooping = false
     },
     videoPaused () {
       this.stopLoop()
@@ -170,19 +172,13 @@ export default defineComponent({
     loopEndToNowClicked () {
       this.range.end = this.bar
     },
-    $_playLoopStart () {
-      const startInSeconds = this.$_secondFromBar(this.range.start)
-      this.player.seekToSecond(startInSeconds)
-      this.player.play()
-    },
-    $_pause () {
-      this.player.pause()
-    },
-    $_secondFromBar (bar: number): number {
-      return bar * this.period + this.offset
-    }
   }
 })
+
+function secondFromBar(bar: number, period: number, offset: number): number {
+  const offsetSeconds = offset * period
+  return bar * period + offsetSeconds
+}
 </script>
 
 <style scoped lang="scss">

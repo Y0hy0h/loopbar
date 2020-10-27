@@ -24,12 +24,12 @@
         </div>
       </div>
     </div>
-    <BeatSettings :currentTime="currentTime" :initialBpm="bpm" @update:bpm="bpm = $event" :initialOffset="offset" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
+    <BeatSettings :currentTime="currentTime" v-model:bpm="bpm" v-model:offset="offset" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from 'vue'
+import { computed, defineComponent, reactive, ref, watch } from 'vue'
 
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
@@ -64,6 +64,32 @@ export default defineComponent({
         return Math.floor((currentTime.value - offsetSeconds) / period.value)
       } else {
         return 0
+      }
+    })
+
+    const saveSettingsForFile = (file: File, settings: { bpm: number, offset: number }) => {
+      localStorage.setItem(file.name, JSON.stringify(settings))
+    }
+    const loadSettingsForFile = (file: File): { bpm: number, offset: number } | null => {
+      const stored = localStorage.getItem(file.name)
+      if (stored !== null) {
+        return JSON.parse(stored)
+      } else {
+        return null
+      }
+    }
+    watch([bpm, offset], ([newBpm, newOffset]) => {
+      if (videoFile.value !== null) {
+        saveSettingsForFile(videoFile.value, { bpm: newBpm, offset: newOffset })
+      }
+    })
+    watch(videoFile, (newFile) => {
+      if (newFile !== null) {
+        const stored =loadSettingsForFile(newFile)
+        if (stored !== null) {
+          bpm.value = stored.bpm
+          offset.value = stored.offset
+        }
       }
     })
 
@@ -159,6 +185,12 @@ export default defineComponent({
   flex-direction: column;
   align-items: flex-start;
   gap: 2rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .video-area {

@@ -48,11 +48,11 @@ export default defineComponent({
     NumberInput
   },
   props: {
-    initialBpm: {
+    bpm: {
       type: Number,
       required: true
     },
-    initialOffset: {
+    offset: {
       type: Number,
       required: true
     },
@@ -68,8 +68,14 @@ export default defineComponent({
   ],
   setup (props, ctx) {
     const beatInput = ref('custom')
-    const customBpm = ref(props.initialBpm)
-    const customOffset = ref(props.initialOffset)
+    const customBpm = computed({
+      get: () => props.bpm,
+      set: newBpm => ctx.emit('update:bpm', newBpm)
+    })
+    const customOffset = computed({
+      get: () => props.offset,
+      set: newOffset => ctx.emit('update:offset', newOffset)
+    })
     
     const beatMeter = reactive(new BeatMeter())
 

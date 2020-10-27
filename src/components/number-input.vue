@@ -98,7 +98,7 @@ function formatValue (value: number): string {
 
     input {
       padding-inline: 0.5rem;
-      max-width: 3rem;
+      max-width: 4rem;
     }
   }
 </style>

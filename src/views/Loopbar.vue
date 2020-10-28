@@ -15,12 +15,12 @@
         <button @click="toggleLoop()">{{loopButtonText}}</button>
         <div class="loop-settings">
           <div class="input-with-button">
-            <NumberInput v-model="range.start">from</NumberInput>
+            <NumberInput v-model="range.start" class="narrow-input">from</NumberInput>
             <button @click="loopStartToNowClicked()">set to now</button>
           </div>
-          <NumberInput v-model="range.duration">for duration</NumberInput>
+          <NumberInput v-model="range.duration" class="narrow-input">for duration</NumberInput>
           <div class="input-with-button">
-            <NumberInput v-model="range.end">to</NumberInput>
+            <NumberInput v-model="range.end" class="narrow-input">to</NumberInput>
             <button @click="loopEndToNowClicked()">set to now</button>
           </div>
         </div>
@@ -240,6 +240,10 @@ label {
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 1rem;
+
+  .narrow-input {
+    max-width: 8rem;
+  }
 
   .input-with-button {
     display: flex;

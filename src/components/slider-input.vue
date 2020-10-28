@@ -72,20 +72,6 @@ export default defineComponent({
         this.$emit('update:modelValue', parsed)
       }
     },
-    increment () {
-      const newModelValue = this.modelValue + 1
-      this.$_updateModelValue(newModelValue)
-    },
-    decrement () {
-      const newModelValue = this.modelValue - 1
-      this.$_updateModelValue(newModelValue)
-    },
-    $_updateModelValue(newValue: number) {
-      const newValueBounded = Math.max(this.min, Math.min(this.max, newValue))
-      if (newValue !== this.modelValue) {
-        this.$emit('update:modelValue', newValue)
-      }
-    }
   }
 })
 

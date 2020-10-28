@@ -14,10 +14,9 @@ export default defineComponent({
       type: Number,
       default: 1,
     },
-  },
   emits: [
-    'updated:time-display',
-    'updated:playbackRate',
+    'update:time-display',
+    'update:playbackRate',
     'started-playing',
     'paused'
   ],
@@ -42,7 +41,7 @@ export default defineComponent({
       const newTime = player.value.currentTime
       if (lastCurrentTime !== newTime) {
         lastCurrentTime = newTime
-        ctx.emit('updated:time-display', newTime)
+        ctx.emit('update:time-display', newTime)
       }
       requestAnimationFrame(updateCurrentTime)
     }
@@ -68,7 +67,7 @@ export default defineComponent({
     },
     rateChanged () {
       const newRate = this.player.playbackRate
-      this.$emit('updated:playbackRate', newRate)
+      this.$emit('update:playbackRate', newRate)
     }
   }
 })

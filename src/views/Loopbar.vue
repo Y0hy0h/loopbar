@@ -6,7 +6,7 @@
     </label>
     <div class="control-container" v-if="videoFile !== null">
       <div class="video-area">
-        <VideoPlayer ref="player" :file="videoFile" @updated:time-display="currentTimeDisplay = $event" @paused="videoPaused" :playbackRate="playbackRate"></VideoPlayer>
+        <VideoPlayer ref="player" :file="videoFile" @update:time-display="currentTimeDisplay = $event" @paused="videoPaused" v-model:playbackRate="playbackRate"></VideoPlayer>
         <span class="currentTime">
           Beat #{{bar}} ({{currentTimeIndicator}})
         </span>

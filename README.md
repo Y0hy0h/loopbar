@@ -5,8 +5,6 @@ Loop bars from a dance video for practice. Try it out at https://y0hy0h.github.i
 
 Works offline with videos from your device. Simply set the beats per minute (bpm) and then select which parts to loop.
 
-Note that currently your settings, including the bpm, are not saved.
-
 ## Project setup
 ```
 npm install

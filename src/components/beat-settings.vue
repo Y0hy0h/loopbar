@@ -37,7 +37,10 @@
         </div>
         <div class="inputs">
           <NumberInput v-model="customBpm">Beats per minute (bpm)</NumberInput>
-          <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">Offset (in % of bpm)</SliderInput>
+          <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">
+            Offset
+            <template v-slot:unit> % of bpm</template>
+          </SliderInput>
         </div>
       </div>
     </div>

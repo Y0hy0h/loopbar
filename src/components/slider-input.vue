@@ -3,7 +3,7 @@
     <label>
       <slot></slot>
       <div class="inputs">
-        <input type="text" inputmode="decimal" :value="inputText" @change="newTextInput($event.target.value)"/>
+        <div><input type="text" inputmode="decimal" :value="inputText" @change="newTextInput($event.target.value)"/><span><slot name="unit"></slot></span></div>
         <input type="range" :value="modelValue" @input="newSliderInput($event.target.value)" :min="min" :max="max"/>
       </div>
     </label>
@@ -129,6 +129,7 @@ function formatValue (value: number, step: number): string {
     }
 
     input[type="text"] {
+      text-align: end;
       padding-inline: 0.5rem;
       max-width: 4rem;
     }

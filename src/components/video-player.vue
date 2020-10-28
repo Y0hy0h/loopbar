@@ -1,18 +1,23 @@
 <template>
-  <video ref="player" id="player" :src="source" controls @playing="$emit('started-playing')" @pause="$emit('paused')"></video>
+  <video ref="player" id="player" :src="source" controls @playing="$emit('started-playing')" @pause="$emit('paused')" @ratechange="rateChanged()"></video>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRef, watch } from 'vue'
 
 export default defineComponent({
   props: {
     file: {
-      type: File
-    }
+      type: File,
+    },
+    playbackRate: {
+      type: Number,
+      default: 1,
+    },
   },
   emits: [
-    'updated-time-display',
+    'updated:time-display',
+    'updated:playbackRate',
     'started-playing',
     'paused'
   ],
@@ -28,12 +33,16 @@ export default defineComponent({
       }
     })
 
+    watch(toRef(props, 'playbackRate'), newRate => {
+      player.value.playbackRate = newRate
+    })
+
     let lastCurrentTime: DOMHighResTimeStamp | null = null
     const updateCurrentTime = () => {
       const newTime = player.value.currentTime
       if (lastCurrentTime !== newTime) {
         lastCurrentTime = newTime
-        ctx.emit('updated-time-display', newTime)
+        ctx.emit('updated:time-display', newTime)
       }
       requestAnimationFrame(updateCurrentTime)
     }
@@ -57,6 +66,10 @@ export default defineComponent({
     pause () {
       this.player.pause()
     },
+    rateChanged () {
+      const newRate = this.player.playbackRate
+      this.$emit('updated:playbackRate', newRate)
+    }
   }
 })
 </script>

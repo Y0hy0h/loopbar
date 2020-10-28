@@ -6,10 +6,24 @@
     </label>
     <div class="control-container" v-if="videoFile !== null">
       <div class="video-area">
-        <VideoPlayer ref="player" :file="videoFile" @updated-time-display="currentTimeDisplay = $event" @paused="videoPaused"></VideoPlayer>
+        <VideoPlayer ref="player" :file="videoFile" @updated:time-display="currentTimeDisplay = $event" @paused="videoPaused" :playbackRate="playbackRate"></VideoPlayer>
         <span class="currentTime">
           Beat #{{bar}} ({{currentTimeIndicator}})
         </span>
+        <div class="rate-settings">
+          <SliderInput class="rate-slider" v-model="playbackRatePercent" :min="25" :max="300">
+            Playback rate
+            <template v-slot:unit> %</template>
+          </SliderInput>
+          <div class="rate-buttons">
+            <button @click="playbackRate = 0.25">25 %</button>
+            <button @click="playbackRate = 0.5">50 %</button>
+            <button @click="playbackRate = 0.75">75 %</button>
+            <button @click="playbackRate = 1">100 %</button>
+            <button @click="playbackRate = 1.5">150 %</button>
+            <button @click="playbackRate = 2">200 %</button>
+          </div>
+        </div>
       </div>
       <div class="loop-area">
         <button @click="toggleLoop()">{{loopButtonText}}</button>
@@ -25,7 +39,7 @@
           </div>
         </div>
       </div>
-      <BeatSettings :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
+      <BeatSettings class="beat-settings" :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
     </div>
   </div>
 </template>
@@ -36,6 +50,7 @@ import { computed, defineComponent, reactive, Ref, ref, watch } from 'vue'
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
 import NumberInput from '@/components/number-input.vue'
+import SliderInput from '@/components/slider-input.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
@@ -44,6 +59,7 @@ import { BeatMeter, periodFromBpm } from '@/logic/beatMeter'
 export default defineComponent({
   components: {
     VideoPlayer,
+    SliderInput,
     NumberInput,
     BeatSettings
   },
@@ -55,6 +71,13 @@ export default defineComponent({
     const currentTimeDisplay = ref(0)
     const currentTimeIndicator = computed(() => {
       return timecodeFromSecond(currentTimeDisplay.value)
+    })
+    const playbackRate = ref(1)
+    const playbackRatePercent = computed({
+      get: () => playbackRate.value * 100,
+      set: newRatePercent => {
+        playbackRate.value = newRatePercent / 100
+      }
     })
 
     const bpm = ref(120)
@@ -131,6 +154,8 @@ export default defineComponent({
       player,
       currentTimeDisplay,
       currentTimeIndicator,
+      playbackRate,
+      playbackRatePercent,
       bpm,
       period,
       offset,
@@ -219,6 +244,27 @@ label {
  flex-direction: column;
  align-items: flex-start;
  gap: 0.5rem;
+}
+
+.rate-settings, .loop-area, .beat-settings {
+  border: 1px solid black;
+  border-radius: 0.3rem;
+  padding: 1rem;
+}
+
+.rate-settings {
+  width: 100%;
+}
+
+.rate-slider {
+  width: 100%;
+}
+
+.rate-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .currentTime {

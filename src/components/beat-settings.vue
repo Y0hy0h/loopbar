@@ -12,16 +12,18 @@
             Use tap settings
           </label>
         </div>
-        <button @mousedown="tappedBeat">Tap me to the beat</button>
-        <div class="bpm-display">
-          <span v-if="beatMeter.needsMoreBeats" class="missing-beats">
-            Set the beats per minute (bpm) by tapping the button.
-          </span>
-          <span v-else class="bpm">
-            {{meterBpmDisplay}} bpm (offset {{meterOffsetDisplay}})
-          </span>
+        <div class="inputs">
+          <button @mousedown="tappedBeat">Tap me to the beat</button>
+          <div class="bpm-display">
+            <span v-if="beatMeter.needsMoreBeats" class="missing-beats">
+              Set the beats per minute (bpm) by tapping the button.
+            </span>
+            <span v-else class="bpm">
+              {{meterBpmDisplay}} bpm (offset {{meterOffsetDisplay}})
+            </span>
+          </div>
+          <button @click="resetClicked">Reset bpm</button>
         </div>
-        <button @click="resetClicked">Reset bpm</button>
       </div>
       <div class="custom setting">
         <div class="header">
@@ -30,8 +32,10 @@
             Use custom settings
           </label>
         </div>
-        <NumberInput v-model="customBpm">Beats per minute (bpm)</NumberInput>
-        <NumberInput v-model="customOffset">Offset</NumberInput>
+        <div class="inputs">
+          <NumberInput v-model="customBpm">Beats per minute (bpm)</NumberInput>
+          <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">Offset (in % of bpm)</SliderInput>
+        </div>
       </div>
     </div>
   </div>
@@ -41,11 +45,14 @@
 import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
 
 import NumberInput from '@/components/number-input.vue'
+import SliderInput from '@/components/slider-input.vue'
+
 import { BeatMeter, periodFromBpm } from '@/logic/beatMeter'
 
 export default defineComponent({
   components: {
-    NumberInput
+    NumberInput,
+    SliderInput
   },
   props: {
     bpm: {
@@ -79,6 +86,14 @@ export default defineComponent({
     const customOffset = computed({
       get: () => props.offset,
       set: newOffset => ctx.emit('update:offset', newOffset)
+    })
+    const customOffsetPercent = computed({
+      get: () => {
+        return customOffset.value * 100
+      },
+      set: (newOffsetPercent: number) => {
+        customOffset.value = newOffsetPercent / 100
+      }
     })
     
     const beatMeter = reactive(new BeatMeter())
@@ -133,7 +148,7 @@ export default defineComponent({
 
     return {
       customBpm,
-      customOffset,
+      customOffsetPercent,
       meterBpmDisplay,
       meterOffsetDisplay,
       bpmDisplay,
@@ -190,6 +205,13 @@ export default defineComponent({
 
   .header {
     margin-block-end: 0.5em;
+  }
+
+  .inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
   .meter {

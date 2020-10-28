@@ -1,30 +1,32 @@
 <template>
-  <div class="container">
-    <div class="video-area">
-      <label>
-        Choose a video file
-        <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
-      </label>
-      <VideoPlayer ref="player" :file="videoFile" @updated-time-display="currentTimeDisplay = $event" @paused="videoPaused"></VideoPlayer>
-      <span class="currentTime">
-        Beat #{{bar}} ({{currentTimeIndicator}})
-      </span>
-    </div>
-    <div class="loop-area">
-      <button @click="toggleLoop()">{{loopButtonText}}</button>
-      <div class="loop-settings">
-        <div class="input-with-button">
-          <NumberInput v-model="range.start">from</NumberInput>
-          <button @click="loopStartToNowClicked()">set to now</button>
-        </div>
-        <NumberInput v-model="range.duration">for duration</NumberInput>
-        <div class="input-with-button">
-          <NumberInput v-model="range.end">to</NumberInput>
-          <button @click="loopEndToNowClicked()">set to now</button>
+  <div class="root-container">
+    <label>
+      Choose a video file
+      <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
+    </label>
+    <div class="control-container" v-if="videoFile !== null">
+      <div class="video-area">
+        <VideoPlayer ref="player" :file="videoFile" @updated-time-display="currentTimeDisplay = $event" @paused="videoPaused"></VideoPlayer>
+        <span class="currentTime">
+          Beat #{{bar}} ({{currentTimeIndicator}})
+        </span>
+      </div>
+      <div class="loop-area">
+        <button @click="toggleLoop()">{{loopButtonText}}</button>
+        <div class="loop-settings">
+          <div class="input-with-button">
+            <NumberInput v-model="range.start">from</NumberInput>
+            <button @click="loopStartToNowClicked()">set to now</button>
+          </div>
+          <NumberInput v-model="range.duration">for duration</NumberInput>
+          <div class="input-with-button">
+            <NumberInput v-model="range.end">to</NumberInput>
+            <button @click="loopEndToNowClicked()">set to now</button>
+          </div>
         </div>
       </div>
+      <BeatSettings :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
     </div>
-    <BeatSettings :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 
@@ -89,8 +91,8 @@ export default defineComponent({
       if (newFile !== null) {
         const stored =loadSettingsForFile(newFile)
         if (stored !== null) {
-          bpm.value = stored.bpm
-          offset.value = stored.offset
+          customBpm.value = stored.bpm
+          customOffset.value = stored.offset
         }
       }
     })
@@ -191,8 +193,15 @@ function secondFromBar(bar: number, period: number, offset: number): number {
 </script>
 
 <style scoped lang="scss">
-.container {
+.root-container {
   max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.control-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start;

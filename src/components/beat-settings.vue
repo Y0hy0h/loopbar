@@ -8,8 +8,11 @@
       <div class="meter setting">
         <div class="header">
           <label>
-            <input type="radio" name="beatInput" value="meter" v-model="beatInput" v-bind:disabled="beatMeter.needsMoreBeats"/>
-            Use tap settings
+            <input type="radio" name="beatInput" value="meter" v-model="beatInput" :disabled="beatMeter.needsMoreBeats"/>
+            <div>
+              <span :class="{ disabled: beatMeter.needsMoreBeats }">Use tap settings</span>
+              <span v-if="beatMeter.needsMoreBeats"> (unavailable until set)</span>
+            </div>
           </label>
         </div>
         <div class="inputs">
@@ -42,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, PropType, reactive, ref, toRef, watch } from 'vue'
 
 import NumberInput from '@/components/number-input.vue'
 import SliderInput from '@/components/slider-input.vue'
@@ -55,11 +58,11 @@ export default defineComponent({
     SliderInput
   },
   props: {
-    bpm: {
+    customBpm: {
       type: Number,
       required: true
     },
-    offset: {
+    customOffset: {
       type: Number,
       required: true
     },
@@ -79,14 +82,8 @@ export default defineComponent({
   ],
   setup (props, ctx) {
     const beatInput = ref('custom')
-    const customBpm = computed({
-      get: () => props.bpm,
-      set: newBpm => ctx.emit('update:bpm', newBpm)
-    })
-    const customOffset = computed({
-      get: () => props.offset,
-      set: newOffset => ctx.emit('update:offset', newOffset)
-    })
+    const customBpm = ref(props.customBpm)
+    const customOffset = ref(props.customOffset)
     const customOffsetPercent = computed({
       get: () => {
         return customOffset.value * 100
@@ -95,8 +92,25 @@ export default defineComponent({
         customOffset.value = newOffsetPercent / 100
       }
     })
+
+    watch(toRef(props, 'customBpm'), newPropBpm => {
+      if (newPropBpm !== customBpm.value) {
+        customBpm.value = newPropBpm
+      }
+    })
+    watch(toRef(props, 'customOffset'), newPropOffset => {
+      if (newPropOffset !== customOffset.value) {
+        customOffset.value = newPropOffset
+      }
+    })
+    watch([customBpm, customOffset], () => {
+      beatInput.value = 'custom'
+    })
     
     const beatMeter = reactive(new BeatMeter())
+    // We cannot watch the beatMeter, because tapping a button might not change the beat settings,
+    // and then the watch hook will not be triggered.
+    // Instead we react on all the button presses in this section.
 
     const period = computed(() => {
       if (beatInput.value === 'meter') {
@@ -138,7 +152,7 @@ export default defineComponent({
     })
 
     const meterBpmDisplay = computed(() => beatMeter.bpm.toFixed(1))
-    const meterOffsetDisplay = computed(() => `${beatMeter.offset.toFixed(1)} %`)
+    const meterOffsetDisplay = computed(() => `${(beatMeter.offset * 100).toFixed(0)} %`)
 
     const bpmDisplay = computed(() => bpm.value.toFixed(1))
     const offsetDisplay = computed(() => {
@@ -148,6 +162,7 @@ export default defineComponent({
 
     return {
       customBpm,
+      customOffset,
       customOffsetPercent,
       meterBpmDisplay,
       meterOffsetDisplay,
@@ -162,10 +177,15 @@ export default defineComponent({
     tappedBeat () {
       this.$emit('start-play')
       this.beatMeter.addBeats(this.getCurrentTime())
+
+      if (!this.beatMeter.needsMoreBeats) {
+        this.beatInput = 'meter'
+      }
     },
     resetClicked () {
       this.beatMeter.reset()
-    }
+      this.beatInput = 'custom'      
+    },
   }
 })
 </script>
@@ -179,6 +199,10 @@ export default defineComponent({
     input[type="radio"] {
       margin-inline-end: 0.5em;
     }
+  }
+
+  .disabled {
+    color: hsl(0, 0%, 50%);
   }
 
   .beat-settings {

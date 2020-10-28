@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    <BeatSettings :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" v-model:bpm="bpm" v-model:offset="offset" @start-play="player.play()"></BeatSettings>
+    <BeatSettings :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
   </div>
 </template>
 
@@ -66,6 +66,8 @@ export default defineComponent({
         return 0
       }
     })
+    const customBpm = ref(bpm.value)
+    const customOffset = ref(offset.value)
 
     const saveSettingsForFile = (file: File, settings: { bpm: number, offset: number }) => {
       localStorage.setItem(file.name, JSON.stringify(settings))
@@ -103,7 +105,6 @@ export default defineComponent({
       }
     })
 
-
     const playLoopStart = () => {
       const startInSeconds = secondFromBar(range.start, period.value, offset.value)
       player.value.seekToSecond(startInSeconds)
@@ -131,6 +132,8 @@ export default defineComponent({
       bpm,
       period,
       offset,
+      customBpm,
+      customOffset,
       bar,
       isLooping,
       range,

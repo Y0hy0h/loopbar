@@ -82,6 +82,7 @@ function formatValue (value: number): string {
     grid-template-areas:
       "label label label"
       "first input second";
+    max-width: 8em;
   }
 
   .label {
@@ -106,7 +107,8 @@ function formatValue (value: number): string {
 
   input {
     padding-inline: 0.5rem;
-    max-width: 4rem;
+    width: 100%;
+    min-width: 2em;
   }
 
   button {

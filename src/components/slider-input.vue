@@ -21,21 +21,21 @@ export default defineComponent({
     },
     min: {
       type: Number,
-      default: 0,
+      default: 0
     },
     max: {
       type: Number,
-      default: 100,
+      default: 100
     },
     step: {
       type: Number,
-      default: 1,
-    },
+      default: 1
+    }
   },
   emits: [
     'update:modelValue'
   ],
-  setup (props, ctx) {
+  setup (props) {
     const { modelValue } = toRefs(props)
 
     // The text input needs its own state, since it might contain an invalid number.
@@ -71,7 +71,7 @@ export default defineComponent({
       if (parsed != null) {
         this.$emit('update:modelValue', parsed)
       }
-    },
+    }
   }
 })
 

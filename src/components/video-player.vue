@@ -8,12 +8,13 @@ import { computed, defineComponent, onMounted, ref, toRef, watch } from 'vue'
 export default defineComponent({
   props: {
     file: {
-      type: File,
+      type: File
     },
     playbackRate: {
       type: Number,
-      default: 1,
-    },
+      default: 1
+    }
+  },
   emits: [
     'update:time-display',
     'update:playbackRate',
@@ -49,7 +50,7 @@ export default defineComponent({
 
     return {
       player,
-      source,
+      source
     }
   },
   methods: {

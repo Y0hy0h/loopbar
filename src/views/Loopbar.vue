@@ -54,7 +54,7 @@ import SliderInput from '@/components/slider-input.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
-import { BeatMeter, periodFromBpm } from '@/logic/beatMeter'
+import { periodFromBpm } from '@/logic/beatMeter'
 
 export default defineComponent({
   components: {
@@ -94,10 +94,10 @@ export default defineComponent({
     const customBpm = ref(bpm.value)
     const customOffset = ref(offset.value)
 
-    const saveSettingsForFile = (file: File, settings: { bpm: number, offset: number }) => {
+    const saveSettingsForFile = (file: File, settings: { bpm: number; offset: number }) => {
       localStorage.setItem(file.name, JSON.stringify(settings))
     }
-    const loadSettingsForFile = (file: File): { bpm: number, offset: number } | null => {
+    const loadSettingsForFile = (file: File): { bpm: number; offset: number } | null => {
       const stored = localStorage.getItem(file.name)
       if (stored !== null) {
         return JSON.parse(stored)
@@ -112,7 +112,7 @@ export default defineComponent({
     })
     watch(videoFile, (newFile) => {
       if (newFile !== null) {
-        const stored =loadSettingsForFile(newFile)
+        const stored = loadSettingsForFile(newFile)
         if (stored !== null) {
           customBpm.value = stored.bpm
           customOffset.value = stored.offset
@@ -141,7 +141,7 @@ export default defineComponent({
       const tolerance = 0.1
       const startTime = secondFromBar(currentRange.start, period.value, offset.value) - tolerance
       const endTime = secondFromBar(currentRange.end, period.value, offset.value)
-      
+
       const insideOfLoop = startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
       if (nowIsLooping && !insideOfLoop) {
         playLoopStart()
@@ -207,11 +207,11 @@ export default defineComponent({
     },
     loopEndToNowClicked () {
       this.range.end = this.bar
-    },
+    }
   }
 })
 
-function secondFromBar(bar: number, period: number, offset: number): number {
+function secondFromBar (bar: number, period: number, offset: number): number {
   const offsetSeconds = offset * period
   return bar * period + offsetSeconds
 }

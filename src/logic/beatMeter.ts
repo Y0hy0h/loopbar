@@ -45,11 +45,11 @@ export class BeatMeter {
     }
 }
 
-export function bpmFromPeriod(period: number): number {
+export function bpmFromPeriod (period: number): number {
   return 60 / period
 }
 
-export function periodFromBpm(bpm: number): number {
+export function periodFromBpm (bpm: number): number {
   return 60 / bpm
 }
 

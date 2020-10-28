@@ -36,7 +36,7 @@
           </label>
         </div>
         <div class="inputs">
-          <NumberInput v-model="customBpm">Beats per minute (bpm)</NumberInput>
+          <NumberInput v-model="customBpmRef">Beats per minute (bpm)</NumberInput>
           <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">
             Offset
             <template v-slot:unit> % of bpm</template>
@@ -71,7 +71,7 @@ export default defineComponent({
     },
     currentTimeDisplay: {
       type: Number,
-      required: true,
+      required: true
     },
     getCurrentTime: {
       type: Function as PropType<() => DOMHighResTimeStamp>,
@@ -85,31 +85,31 @@ export default defineComponent({
   ],
   setup (props, ctx) {
     const beatInput = ref('custom')
-    const customBpm = ref(props.customBpm)
-    const customOffset = ref(props.customOffset)
+    const customBpmRef = ref(props.customBpm)
+    const customOffsetRef = ref(props.customOffset)
     const customOffsetPercent = computed({
       get: () => {
-        return customOffset.value * 100
+        return customOffsetRef.value * 100
       },
       set: (newOffsetPercent: number) => {
-        customOffset.value = newOffsetPercent / 100
+        customOffsetRef.value = newOffsetPercent / 100
       }
     })
 
     watch(toRef(props, 'customBpm'), newPropBpm => {
-      if (newPropBpm !== customBpm.value) {
-        customBpm.value = newPropBpm
+      if (newPropBpm !== customBpmRef.value) {
+        customBpmRef.value = newPropBpm
       }
     })
     watch(toRef(props, 'customOffset'), newPropOffset => {
-      if (newPropOffset !== customOffset.value) {
-        customOffset.value = newPropOffset
+      if (newPropOffset !== customOffsetRef.value) {
+        customOffsetRef.value = newPropOffset
       }
     })
-    watch([customBpm, customOffset], () => {
+    watch([customBpmRef, customOffsetRef], () => {
       beatInput.value = 'custom'
     })
-    
+
     const beatMeter = reactive(new BeatMeter())
     // We cannot watch the beatMeter, because tapping a button might not change the beat settings,
     // and then the watch hook will not be triggered.
@@ -119,21 +119,21 @@ export default defineComponent({
       if (beatInput.value === 'meter') {
         return beatMeter.period
       } else {
-        return periodFromBpm(customBpm.value)
+        return periodFromBpm(customBpmRef.value)
       }
     })
     const bpm = computed(() => {
       if (beatInput.value === 'meter') {
         return beatMeter.bpm
       } else {
-        return customBpm.value
+        return customBpmRef.value
       }
     })
     const offset = computed(() => {
       if (beatInput.value === 'meter') {
         return beatMeter.offset
       } else {
-        return customOffset.value
+        return customOffsetRef.value
       }
     })
 
@@ -164,8 +164,6 @@ export default defineComponent({
     })
 
     return {
-      customBpm,
-      customOffset,
       customOffsetPercent,
       meterBpmDisplay,
       meterOffsetDisplay,
@@ -173,7 +171,7 @@ export default defineComponent({
       offsetDisplay,
       beatMeter,
       beatIndicator,
-      beatInput,
+      beatInput
     }
   },
   methods: {
@@ -187,8 +185,8 @@ export default defineComponent({
     },
     resetClicked () {
       this.beatMeter.reset()
-      this.beatInput = 'custom'      
-    },
+      this.beatInput = 'custom'
+    }
   }
 })
 </script>

@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <div class="number-input">
+    <button class="first-button" @click="decrement">⬅️</button>
     <label>
-      <slot></slot>
-      <div class="inputs">
-        <button @click="decrement">⬅️</button>
-        <input type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
-        <button @click="increment">➡️</button>
+      <div class="label">
+        <slot></slot>
       </div>
+      <input class="input" type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
     </label>
+    <button class="second-button" @click="increment">➡️</button>
   </div>
 </template>
 
@@ -77,28 +77,39 @@ function formatValue (value: number): string {
 </script>
 
 <style scoped lang="scss">
-  label {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-
-    input {
-      width: 100%;
-    }
+  .number-input {
+    display: grid;
+    grid-template-areas:
+      "label label label"
+      "first input second";
   }
 
-  .inputs {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
+  .label {
+    grid-area: label;
+  }
 
-    button {
-      padding: 0.2rem;
-    }
+  .first-button {
+    grid-area: first;
+  }
 
-    input {
-      padding-inline: 0.5rem;
-      max-width: 4rem;
-    }
+  .input {
+    grid-area: input;
+  }
+
+  .second-button {
+    grid-area: second;
+  }
+
+  label {
+    display: contents;
+  }
+
+  input {
+    padding-inline: 0.5rem;
+    max-width: 4rem;
+  }
+
+  button {
+    padding: 0.2rem;
   }
 </style>

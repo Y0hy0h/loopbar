@@ -165,6 +165,7 @@ export default defineComponent({
 
     return {
       customOffsetPercent,
+      customBpmRef,
       meterBpmDisplay,
       meterOffsetDisplay,
       bpmDisplay,

@@ -5,6 +5,21 @@
       {{bpmDisplay}} bpm
     </div>
     <div class="settings-area">
+      <div class="custom setting">
+        <div class="header">
+          <label>
+            <input type="radio" name="beatInput" value="custom" v-model="beatInput"/>
+            Use custom settings
+          </label>
+        </div>
+        <div class="inputs">
+          <NumberInput v-model="customBpmRef">Beats per minute (bpm)</NumberInput>
+          <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">
+            Offset
+            <template v-slot:unit> % of bpm</template>
+          </SliderInput>
+        </div>
+      </div>
       <div class="meter setting">
         <div class="header">
           <label>
@@ -26,21 +41,6 @@
             </span>
           </div>
           <button @click="resetClicked">Reset bpm</button>
-        </div>
-      </div>
-      <div class="custom setting">
-        <div class="header">
-          <label>
-            <input type="radio" name="beatInput" value="custom" v-model="beatInput"/>
-            Use custom settings
-          </label>
-        </div>
-        <div class="inputs">
-          <NumberInput v-model="customBpmRef">Beats per minute (bpm)</NumberInput>
-          <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">
-            Offset
-            <template v-slot:unit> % of bpm</template>
-          </SliderInput>
         </div>
       </div>
     </div>

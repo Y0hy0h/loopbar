@@ -40,8 +40,9 @@
         </div>
         <div class="loop-settings">
           Shift loop
-          <button @click="shiftLoopBack()">⬅️</button>
-          <button @click="shiftLoopForward()">➡️️</button>
+          <button @click="shiftLoop(-1)">⬅️</button>
+          <button @click="shiftLoop(+1)">➡️️</button>
+          <NumberInput v-model="shiftMultiplier">Shift multiplier</NumberInput>
         </div>
       </div>
       <BeatSettings class="beat-settings" :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
@@ -125,7 +126,8 @@ export default defineComponent({
       }
     })
 
-    const range = reactive(Range.fromStartAndDuration(0, 1))
+    const range = reactive(Range.fromStartAndDuration(0, 8))
+    const shiftMultiplier = ref(8)
     const isLooping = ref(false)
     const loopButtonText = computed(() => {
       if (!isLooping.value) {
@@ -169,6 +171,7 @@ export default defineComponent({
       bar,
       isLooping,
       range,
+      shiftMultiplier,
       loopButtonText
     }
   },
@@ -191,11 +194,9 @@ export default defineComponent({
         return 0
       }
     },
-    shiftLoopBack () {
-      this.range.shift(-1)
-    },
-    shiftLoopForward () {
-      this.range.shift(1)
+    shiftLoop (direction: number) {
+      const offset = direction * this.shiftMultiplier
+      this.range.shift(offset)
     },
     toggleLoop () {
       if (!this.isLooping) {

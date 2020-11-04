@@ -43,4 +43,24 @@ describe('Range', () => {
       )
     )
   })
+
+  it('shift preserves duration', () => {
+    fc.assert(
+      fc.property(
+        fc.record({
+          start: fc.double(0, MAX_SECONDS),
+          originalDuration: fc.double(0, MAX_SECONDS),
+          offset: fc.oneof(fc.double(-2 * MAX_SECONDS, 2 * MAX_SECONDS), fc.constant(NaN))
+        }),
+        data => {
+          const range = Range.fromStartAndDuration(data.start, data.originalDuration)
+
+          const rangeBefore = Range.fromStartAndEnd(range.start, range.end)
+          range.shift(data.offset)
+
+          expect(range.duration).to.be.approximately(data.originalDuration, 0.0001, `${JSON.stringify(rangeBefore)} -> ${JSON.stringify(range)}`)
+        }
+      )
+    )
+  })
 })

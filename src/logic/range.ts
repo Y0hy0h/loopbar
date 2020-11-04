@@ -60,9 +60,11 @@ export class Range {
      * @param offset The units to offset the range by.
      */
     shift (offset: number) {
-      if (this.start + offset >= 0) { // If the shift is inside the bounds.
-        this.setStart(this.start + offset)
-        this.setEnd(this.end + offset)
+      const newStart = this.start + offset
+      if (newStart >= 0) { // If the shift is inside the bounds.
+        const newEnd = this.end + offset
+        this.setStart(newStart)
+        this.setEnd(newEnd)
       } else { // If the shift goes below 0.
         const oldDuration = this.duration
         this.setStart(0)

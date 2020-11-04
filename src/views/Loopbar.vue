@@ -29,14 +29,19 @@
         <button @click="toggleLoop()">{{loopButtonText}}</button>
         <div class="loop-settings">
           <div class="input-with-button">
-            <NumberInput v-model="range.start" class="narrow-input">from</NumberInput>
+            <NumberInput :modelValue="range.start" @update:modelValue="range.setStart($event)" class="narrow-input">from</NumberInput>
             <button @click="loopStartToNowClicked()">set to now</button>
           </div>
-          <NumberInput v-model="range.duration" class="narrow-input">for duration</NumberInput>
+          <NumberInput :modelValue="range.duration" @update:modelValue="range.setDurationByShiftingEnd($event)" class="narrow-input">for duration</NumberInput>
           <div class="input-with-button">
-            <NumberInput v-model="range.end" class="narrow-input">to</NumberInput>
+            <NumberInput :modelValue="range.end" @update:modelValue="range.setEnd($event)" class="narrow-input">to</NumberInput>
             <button @click="loopEndToNowClicked()">set to now</button>
           </div>
+        </div>
+        <div class="loop-settings">
+          Shift loop
+          <button @click="shiftLoopBack()">⬅️</button>
+          <button @click="shiftLoopForward()">➡️️</button>
         </div>
       </div>
       <BeatSettings class="beat-settings" :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
@@ -120,7 +125,7 @@ export default defineComponent({
       }
     })
 
-    const range = reactive(new Range(0, 1))
+    const range = reactive(Range.fromStartAndDuration(0, 1))
     const isLooping = ref(false)
     const loopButtonText = computed(() => {
       if (!isLooping.value) {
@@ -186,6 +191,12 @@ export default defineComponent({
         return 0
       }
     },
+    shiftLoopBack () {
+      this.range.shift(-1)
+    },
+    shiftLoopForward () {
+      this.range.shift(1)
+    },
     toggleLoop () {
       if (!this.isLooping) {
         this.startLoop()
@@ -203,10 +214,10 @@ export default defineComponent({
       this.stopLoop()
     },
     loopStartToNowClicked () {
-      this.range.start = this.bar
+      this.range.setStart(this.bar)
     },
     loopEndToNowClicked () {
-      this.range.end = this.bar
+      this.range.setEnd(this.bar)
     }
   }
 })

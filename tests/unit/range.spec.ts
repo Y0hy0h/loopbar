@@ -20,19 +20,19 @@ describe('Range', () => {
           change: fc.oneof(fc.double(-2 * MAX_SECONDS, 2 * MAX_SECONDS), fc.constant(NaN))
         }),
         data => {
-          const range = new Range(data.start, data.duration)
+          const range = Range.fromStartAndDuration(data.start, data.duration)
 
           switch (data.property) {
             case 'start': {
-              range.start += data.change
+              range.setStart(range.start + data.change)
               break
             }
             case 'duration': {
-              range.duration += data.change
+              range.setDurationByShiftingEnd(range.duration + data.change)
               break
             }
             default: {
-              range.end += data.change
+              range.setEnd(range.end + data.change)
             }
           }
 

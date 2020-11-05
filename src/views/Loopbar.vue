@@ -182,7 +182,8 @@ export default defineComponent({
       isLooping,
       range,
       shiftMultiplier,
-      loopButtonText
+      loopButtonText,
+      playLoopStart
     }
   },
   methods: {
@@ -217,6 +218,7 @@ export default defineComponent({
     },
     startLoop () {
       this.isLooping = true
+      this.playLoopStart()
     },
     stopLoop () {
       this.isLooping = false

@@ -7,6 +7,11 @@ module.exports = {
         return args
       })
   },
+  pwa: {
+    workboxOptions: {
+      skipWaiting: true,
+    },
+  },
   publicPath: process.env.NODE_ENV === 'production'
     ? '/loopbar/'
     : '/',

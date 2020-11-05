@@ -39,8 +39,8 @@ export default defineComponent({
 
     let lastCurrentTime: DOMHighResTimeStamp | null = null
     const updateCurrentTime = () => {
-      const newTime = player.value.currentTime
-      if (lastCurrentTime !== newTime) {
+      const newTime = player.value?.currentTime
+      if (newTime!== null && lastCurrentTime !== newTime) {
         lastCurrentTime = newTime
         ctx.emit('update:time-display', newTime)
       }

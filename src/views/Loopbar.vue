@@ -100,32 +100,6 @@ export default defineComponent({
     const customBpm = ref(bpm.value)
     const customOffset = ref(offset.value)
 
-    const saveSettingsForFile = (file: File, settings: { bpm: number; offset: number }) => {
-      localStorage.setItem(file.name, JSON.stringify(settings))
-    }
-    const loadSettingsForFile = (file: File): { bpm: number; offset: number } | null => {
-      const stored = localStorage.getItem(file.name)
-      if (stored !== null) {
-        return JSON.parse(stored)
-      } else {
-        return null
-      }
-    }
-    watch([bpm, offset], ([newBpm, newOffset]) => {
-      if (videoFile.value !== null) {
-        saveSettingsForFile(videoFile.value, { bpm: newBpm, offset: newOffset })
-      }
-    })
-    watch(videoFile, (newFile) => {
-      if (newFile !== null) {
-        const stored = loadSettingsForFile(newFile)
-        if (stored !== null) {
-          customBpm.value = stored.bpm
-          customOffset.value = stored.offset
-        }
-      }
-    })
-
     const range = reactive(Range.fromStartAndDuration(0, 8))
     const shiftMultiplier = ref(8)
     const isLooping = ref(false)
@@ -152,6 +126,42 @@ export default defineComponent({
       const insideOfLoop = startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
       if (nowIsLooping && !insideOfLoop) {
         playLoopStart()
+      }
+    })
+
+    interface Settings {
+      bpm: number,
+      offset: number,
+      range: {
+        start: number,
+        end: number
+      }
+    }
+    const saveSettingsForFile = (file: File, settings: Settings) => {
+      localStorage.setItem(file.name, JSON.stringify(settings))
+    }
+    const loadSettingsForFile = (file: File): Settings | null => {
+      const stored = localStorage.getItem(file.name)
+      if (stored !== null) {
+        return JSON.parse(stored)
+      } else {
+        return null
+      }
+    }
+    watch([bpm, offset, range] as [Ref<number>, Ref<number>, Range], ([newBpm, newOffset, newRange]) => {
+      if (videoFile.value !== null) {
+        saveSettingsForFile(videoFile.value, { bpm: newBpm, offset: newOffset, range: { start: newRange.start, end: newRange.end } })
+      }
+    })
+    watch(videoFile, (newFile) => {
+      if (newFile !== null) {
+        const stored = loadSettingsForFile(newFile)
+        if (stored !== null) {
+          customBpm.value = stored.bpm
+          customOffset.value = stored.offset
+          range.setStart(stored.range.start)
+          range.setEnd(stored.range.end)
+        }
       }
     })
 

@@ -14,16 +14,12 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/loopbar/precache-manifest.0f03fb980765fe749ce479de70bc43c7.js"
+  "/loopbar/precache-manifest.fe773e38cf237a685adad750131012f3.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "loopbar"});
 
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
+workbox.core.skipWaiting();
 
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to

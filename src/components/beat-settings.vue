@@ -71,8 +71,8 @@ import {
   PropType,
   reactive,
   ref,
-  toRef,
-  watch
+  watch,
+  watchEffect
 } from 'vue'
 
 import NumberInput from '@/components/number-input.vue'
@@ -117,12 +117,12 @@ export default defineComponent({
       }
     })
 
-    watch(toRef(props, 'customBpm'), (newPropBpm) => {
-      if (newPropBpm !== customBpmRef.value) {
-        customBpmRef.value = newPropBpm
+    watch(() => props.customBpm, () => {
+      if (props.customBpm !== customBpmRef.value) {
+        customBpmRef.value = props.customBpm
       }
     })
-    watch(toRef(props, 'customOffset'), (newPropOffset) => {
+    watch(() => props.customOffset, (newPropOffset) => {
       if (newPropOffset !== customOffsetRef.value) {
         customOffsetRef.value = newPropOffset
       }
@@ -158,8 +158,8 @@ export default defineComponent({
       }
     })
 
-    watch(bpm, (newBpm) => ctx.emit('update:bpm', newBpm))
-    watch(offset, (newOffset) => ctx.emit('update:offset', newOffset))
+    watchEffect(() => ctx.emit('update:bpm', bpm.value))
+    watchEffect(() => ctx.emit('update:offset', offset.value))
 
     const clap = computed(() => {
       const offsetSeconds = offset.value * period.value

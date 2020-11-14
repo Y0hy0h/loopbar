@@ -11,13 +11,7 @@
             @change="newTextInput($event.target.value)"
           /><span><slot name="unit"></slot></span>
         </div>
-        <input
-          type="range"
-          :value="modelValue"
-          @input="newSliderInput($event.target.value)"
-          :min="min"
-          :max="max"
-        />
+        <Slider :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)" :min="min" :max="max" :step="step"></Slider>
       </div>
     </label>
   </div>
@@ -26,7 +20,12 @@
 <script lang="ts">
 import { defineComponent, watch, ref, toRefs, computed } from 'vue'
 
+import Slider from '@/components/slider.vue'
+
 export default defineComponent({
+  components: {
+    Slider
+  },
   props: {
     modelValue: {
       type: Number,

@@ -7,6 +7,7 @@
     @playing="$emit('update:isPlaying', true)"
     @pause="$emit('update:isPlaying', false)"
     @ratechange="rateChanged()"
+    @duration="durationChanged()"
   ></video>
 </template>
 
@@ -30,7 +31,8 @@ export default defineComponent({
   emits: [
     'update:time-display',
     'update:isPlaying',
-    'update:playbackRate'
+    'update:playbackRate',
+    'update:duration'
   ],
   setup (props, ctx) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -88,6 +90,10 @@ export default defineComponent({
     rateChanged () {
       const newRate = this.player.playbackRate
       this.$emit('update:playbackRate', newRate)
+    },
+    durationChanged () {
+      const newDuration = this.player.duration
+      this.$emit('update:duration', newDuration)
     }
   }
 })

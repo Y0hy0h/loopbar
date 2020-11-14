@@ -18,6 +18,7 @@
           @update:time-display="currentTimeDisplay = $event"
           @update:isPlaying="isPlaying = $event"
           v-model:playbackRate="playbackRate"
+          :update:duration="duration = $event"
           :mirrored="mirrored"
         ></VideoPlayer>
         <div class="video-controls">
@@ -42,6 +43,7 @@
         <span class="currentTime">
           Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
+        <Slider class="time-slider" :modelValue="currentTimeDisplay" @update:modelValue="seekToSecond($event)" :min="0" :max="duration"></Slider>
       </div>
       <div class="loop-area">
         <button @click="toggleLoop()">{{ loopButtonText }}</button>
@@ -98,6 +100,7 @@ import { computed, defineComponent, reactive, Ref, ref, watch } from 'vue'
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
 import NumberInput from '@/components/number-input.vue'
+import Slider from '@/components/slider.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
@@ -107,6 +110,7 @@ export default defineComponent({
   components: {
     VideoPlayer,
     NumberInput,
+    Slider,
     BeatSettings
   },
   setup () {
@@ -116,6 +120,7 @@ export default defineComponent({
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const player = ref<typeof VideoPlayer>(null!)
+    const duration = ref<number | null>(null)
     const mirrored = ref(false)
     const isPlaying = ref(false)
     const playButtonText = computed(() => {
@@ -251,6 +256,7 @@ export default defineComponent({
       videoFile,
       isPlaying,
       player,
+      duration,
       mirrored,
       playButtonText,
       currentTimeDisplay,
@@ -289,6 +295,9 @@ export default defineComponent({
       } else {
         return 0
       }
+    },
+    seekToSecond (second: number) {
+      this.player.seekToSecond(second)
     },
     togglePlay () {
       this.player.togglePlay()
@@ -391,6 +400,10 @@ label {
   .control-group {
     flex-direction: row;
   }
+}
+
+.time-slider {
+  width: 100%;
 }
 
 .loop-area,

@@ -5,7 +5,13 @@
       <div class="label">
         <slot></slot>
       </div>
-      <input class="input" type="text" inputmode="decimal" :value="inputText" @change="newInput($event.target.value)"/>
+      <input
+        class="input"
+        type="text"
+        inputmode="decimal"
+        :value="inputText"
+        @change="newInput($event.target.value)"
+      />
     </label>
     <button class="second-button" @click="increment">➡️</button>
   </div>
@@ -21,9 +27,7 @@ export default defineComponent({
       required: true
     }
   },
-  emits: [
-    'update:modelValue'
-  ],
+  emits: ['update:modelValue'],
   setup (props) {
     const { modelValue } = toRefs(props)
 
@@ -68,7 +72,8 @@ function parseInput (input: string): number | null {
 }
 
 function formatValue (value: number): string {
-  if (value % 1 === 0) { // if it is a whole number
+  if (value % 1 === 0) {
+    // if it is a whole number
     return value.toString()
   } else {
     return value.toFixed(2)
@@ -77,40 +82,40 @@ function formatValue (value: number): string {
 </script>
 
 <style scoped lang="scss">
-  .number-input {
-    display: grid;
-    grid-template-areas:
-      "label label label"
-      "first input second";
-  }
+.number-input {
+  display: grid;
+  grid-template-areas:
+    "label label label"
+    "first input second";
+}
 
-  .label {
-    grid-area: label;
-  }
+.label {
+  grid-area: label;
+}
 
-  .first-button {
-    grid-area: first;
-  }
+.first-button {
+  grid-area: first;
+}
 
-  .input {
-    grid-area: input;
-  }
+.input {
+  grid-area: input;
+}
 
-  .second-button {
-    grid-area: second;
-  }
+.second-button {
+  grid-area: second;
+}
 
-  label {
-    display: contents;
-  }
+label {
+  display: contents;
+}
 
-  input {
-    padding-inline: 0.5rem;
-    width: 100%;
-    min-width: 2em;
-  }
+input {
+  padding-inline: 0.5rem;
+  width: 100%;
+  min-width: 2em;
+}
 
-  button {
-    padding: 0.2rem;
-  }
+button {
+  padding: 0.2rem;
+}
 </style>

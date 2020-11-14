@@ -9,11 +9,10 @@ module.exports = {
   },
   pwa: {
     workboxOptions: {
-      skipWaiting: true,
-    },
+      skipWaiting: true
+    }
   },
   publicPath: process.env.NODE_ENV === 'production'
     ? '/loopbar/'
-    : '/',
-  lintOnSave: true
+    : '/'
 }

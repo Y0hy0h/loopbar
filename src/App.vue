@@ -1,5 +1,5 @@
 <template>
-  <router-view/>
+  <router-view />
 </template>
 
 <style lang="scss">
@@ -19,7 +19,8 @@ button {
   border: 1px solid black;
   background: none;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     cursor: pointer;
     background: hsla(0, 0%, 0%, 0.1);
   }

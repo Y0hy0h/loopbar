@@ -1,48 +1,48 @@
 export class BeatMeter {
   constructor (
-        private beats: number[] = []
+    private beats: number[] = []
   ) {
     this.calculate(beats)
   }
 
-    private period_ = 0
-    public get period () {
-      return this.period_
-    }
+  private period_ = 0
+  public get period () {
+    return this.period_
+  }
 
-    public get bpm () {
-      if (this.period === 0) {
-        return 0
-      } else {
-        return bpmFromPeriod(this.period)
-      }
+  public get bpm () {
+    if (this.period === 0) {
+      return 0
+    } else {
+      return bpmFromPeriod(this.period)
     }
+  }
 
-    private offset_ = 0
-    public get offset () {
-      return this.offset_
-    }
+  private offset_ = 0
+  public get offset () {
+    return this.offset_
+  }
 
-    public get needsMoreBeats () {
-      return this.beats.length < 2
-    }
+  public get needsMoreBeats () {
+    return this.beats.length < 2
+  }
 
-    public addBeats (...offsetsInSeconds: number[]) {
-      this.beats.push(...offsetsInSeconds)
-      sortNumerically(this.beats)
+  public addBeats (...offsetsInSeconds: number[]) {
+    this.beats.push(...offsetsInSeconds)
+    sortNumerically(this.beats)
 
-      this.calculate(this.beats)
-    }
+    this.calculate(this.beats)
+  }
 
-    public reset () {
-      this.beats = []
-      this.calculate(this.beats)
-    }
+  public reset () {
+    this.beats = []
+    this.calculate(this.beats)
+  }
 
-    private calculate (beats: number[]) {
-      this.period_ = calculatePeriod(beats)
-      this.offset_ = calculateOffset(beats, this.period)
-    }
+  private calculate (beats: number[]) {
+    this.period_ = calculatePeriod(beats)
+    this.offset_ = calculateOffset(beats, this.period)
+  }
 }
 
 export function bpmFromPeriod (period: number): number {

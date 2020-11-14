@@ -3,8 +3,21 @@
     <label>
       <slot></slot>
       <div class="inputs">
-        <div><input type="text" inputmode="decimal" :value="inputText" @change="newTextInput($event.target.value)"/><span><slot name="unit"></slot></span></div>
-        <input type="range" :value="modelValue" @input="newSliderInput($event.target.value)" :min="min" :max="max"/>
+        <div>
+          <input
+            type="text"
+            inputmode="decimal"
+            :value="inputText"
+            @change="newTextInput($event.target.value)"
+          /><span><slot name="unit"></slot></span>
+        </div>
+        <input
+          type="range"
+          :value="modelValue"
+          @input="newSliderInput($event.target.value)"
+          :min="min"
+          :max="max"
+        />
       </div>
     </label>
   </div>
@@ -32,9 +45,7 @@ export default defineComponent({
       default: 1
     }
   },
-  emits: [
-    'update:modelValue'
-  ],
+  emits: ['update:modelValue'],
   setup (props) {
     const { modelValue } = toRefs(props)
 
@@ -95,29 +106,29 @@ function formatValue (value: number, step: number): string {
 </script>
 
 <style scoped lang="scss">
-  label {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 
-    input {
-      width: 100%;
-    }
-  }
-
-  .inputs {
-    display: flex;
-    flex-direction: column;
+  input {
     width: 100%;
-
-    button {
-      padding: 0.2rem;
-    }
-
-    input[type="text"] {
-      text-align: end;
-      padding-inline: 0.5rem;
-      max-width: 4rem;
-    }
   }
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  button {
+    padding: 0.2rem;
+  }
+
+  input[type="text"] {
+    text-align: end;
+    padding-inline: 0.5rem;
+    max-width: 4rem;
+  }
+}
 </style>

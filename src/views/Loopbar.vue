@@ -2,16 +2,32 @@
   <div class="root-container">
     <label>
       Choose a video file
-      <input ref="videoFileInput" type="file" accept="video/*" @change="videoFileSelected"/>
+      <input
+        ref="videoFileInput"
+        type="file"
+        accept="video/*"
+        @change="videoFileSelected"
+      />
     </label>
     <div class="control-container" v-if="videoFile !== null">
       <div class="video-area">
-        <VideoPlayer ref="player" :file="videoFile" @update:time-display="currentTimeDisplay = $event" @paused="videoPaused" v-model:playbackRate="playbackRate"></VideoPlayer>
+        <VideoPlayer
+          ref="player"
+          :file="videoFile"
+          @update:time-display="currentTimeDisplay = $event"
+          @paused="videoPaused"
+          v-model:playbackRate="playbackRate"
+        ></VideoPlayer>
         <span class="currentTime">
-          Beat #{{bar}} ({{currentTimeIndicator}})
+          Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
         <div class="rate-settings">
-          <SliderInput class="rate-slider" v-model="playbackRatePercent" :min="25" :max="300">
+          <SliderInput
+            class="rate-slider"
+            v-model="playbackRatePercent"
+            :min="25"
+            :max="300"
+          >
             Playback rate
             <template v-slot:unit> %</template>
           </SliderInput>
@@ -26,15 +42,30 @@
         </div>
       </div>
       <div class="loop-area">
-        <button @click="toggleLoop()">{{loopButtonText}}</button>
+        <button @click="toggleLoop()">{{ loopButtonText }}</button>
         <div class="loop-settings">
           <div class="input-with-button">
-            <NumberInput :modelValue="range.start" @update:modelValue="range.setStart($event)" class="narrow-input">from</NumberInput>
+            <NumberInput
+              :modelValue="range.start"
+              @update:modelValue="range.setStart($event)"
+              class="narrow-input"
+              >from</NumberInput
+            >
             <button @click="loopStartToNowClicked()">set to now</button>
           </div>
-          <NumberInput :modelValue="range.duration" @update:modelValue="range.setDurationByShiftingEnd($event)" class="narrow-input">for duration</NumberInput>
+          <NumberInput
+            :modelValue="range.duration"
+            @update:modelValue="range.setDurationByShiftingEnd($event)"
+            class="narrow-input"
+            >for duration</NumberInput
+          >
           <div class="input-with-button">
-            <NumberInput :modelValue="range.end" @update:modelValue="range.setEnd($event)" class="narrow-input">to</NumberInput>
+            <NumberInput
+              :modelValue="range.end"
+              @update:modelValue="range.setEnd($event)"
+              class="narrow-input"
+              >to</NumberInput
+            >
             <button @click="loopEndToNowClicked()">set to now</button>
           </div>
         </div>
@@ -45,7 +76,16 @@
           <NumberInput v-model="shiftMultiplier">Shift multiplier</NumberInput>
         </div>
       </div>
-      <BeatSettings class="beat-settings" :currentTimeDisplay="currentTimeDisplay" :getCurrentTime="getCurrentTime" :customBpm="customBpm" :customOffset="customOffset" @update:bpm="bpm = $event" @update:offset="offset = $event" @start-play="player.play()"></BeatSettings>
+      <BeatSettings
+        class="beat-settings"
+        :currentTimeDisplay="currentTimeDisplay"
+        :getCurrentTime="getCurrentTime"
+        :customBpm="customBpm"
+        :customOffset="customOffset"
+        @update:bpm="bpm = $event"
+        @update:offset="offset = $event"
+        @start-play="player.play()"
+      ></BeatSettings>
     </div>
   </div>
 </template>
@@ -70,9 +110,11 @@ export default defineComponent({
     BeatSettings
   },
   setup () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const videoFileInput = ref<HTMLInputElement>(null!)
     const videoFile = ref<File | null>(null)
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const player = ref<typeof VideoPlayer>(null!)
     const currentTimeDisplay = ref(0)
     const currentTimeIndicator = computed(() => {
@@ -81,7 +123,7 @@ export default defineComponent({
     const playbackRate = ref(1)
     const playbackRatePercent = computed({
       get: () => playbackRate.value * 100,
-      set: newRatePercent => {
+      set: (newRatePercent) => {
         playbackRate.value = newRatePercent / 100
       }
     })
@@ -92,7 +134,9 @@ export default defineComponent({
     const bar = computed(() => {
       if (period.value > 0) {
         const offsetSeconds = offset.value * period.value
-        return Math.floor((currentTimeDisplay.value - offsetSeconds) / period.value)
+        return Math.floor(
+          (currentTimeDisplay.value - offsetSeconds) / period.value
+        )
       } else {
         return 0
       }
@@ -112,30 +156,48 @@ export default defineComponent({
     })
 
     const playLoopStart = () => {
-      const startInSeconds = secondFromBar(range.start, period.value, offset.value)
+      const startInSeconds = secondFromBar(
+        range.start,
+        period.value,
+        offset.value
+      )
       player.value.seekToSecond(startInSeconds)
       player.value.play()
     }
-    watch([isLooping, currentTimeDisplay, range] as [Ref<boolean>, Ref<DOMHighResTimeStamp>, Range], ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
-      // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
-      // To prevent that we get stuck in a loop, we do not restart the loop if we are very close to the start time.
-      const tolerance = 0.1
-      const startTime = secondFromBar(currentRange.start, period.value, offset.value) - tolerance
-      const endTime = secondFromBar(currentRange.end, period.value, offset.value)
+    watch(
+      [isLooping, currentTimeDisplay, range] as [
+        Ref<boolean>,
+        Ref<DOMHighResTimeStamp>,
+        Range
+      ],
+      ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
+        // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
+        // To prevent that we get stuck in a loop, we do not restart the loop if we are very close to the start time.
+        const tolerance = 0.1
+        const startTime =
+          secondFromBar(currentRange.start, period.value, offset.value) -
+          tolerance
+        const endTime = secondFromBar(
+          currentRange.end,
+          period.value,
+          offset.value
+        )
 
-      const insideOfLoop = startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
-      if (nowIsLooping && !insideOfLoop) {
-        playLoopStart()
+        const insideOfLoop =
+          startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
+        if (nowIsLooping && !insideOfLoop) {
+          playLoopStart()
+        }
       }
-    })
+    )
 
     interface Settings {
-      bpm: number,
-      offset: number,
+      bpm: number;
+      offset: number;
       range: {
-        start: number,
-        end: number
-      }
+        start: number;
+        end: number;
+      };
     }
     const saveSettingsForFile = (file: File, settings: Settings) => {
       localStorage.setItem(file.name, JSON.stringify(settings))
@@ -148,11 +210,18 @@ export default defineComponent({
         return null
       }
     }
-    watch([bpm, offset, range] as [Ref<number>, Ref<number>, Range], ([newBpm, newOffset, newRange]) => {
-      if (videoFile.value !== null) {
-        saveSettingsForFile(videoFile.value, { bpm: newBpm, offset: newOffset, range: { start: newRange.start, end: newRange.end } })
+    watch(
+      [bpm, offset, range] as [Ref<number>, Ref<number>, Range],
+      ([newBpm, newOffset, newRange]) => {
+        if (videoFile.value !== null) {
+          saveSettingsForFile(videoFile.value, {
+            bpm: newBpm,
+            offset: newOffset,
+            range: { start: newRange.start, end: newRange.end }
+          })
+        }
       }
-    })
+    )
     watch(videoFile, (newFile) => {
       if (newFile !== null) {
         const stored = loadSettingsForFile(newFile)
@@ -264,13 +333,15 @@ label {
 }
 
 .video-area {
- display: flex;
- flex-direction: column;
- align-items: flex-start;
- gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
-.rate-settings, .loop-area, .beat-settings {
+.rate-settings,
+.loop-area,
+.beat-settings {
   border: 1px solid black;
   border-radius: 0.3rem;
   padding: 1rem;

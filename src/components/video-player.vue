@@ -1,5 +1,13 @@
 <template>
-  <video ref="player" id="player" :src="source" controls @playing="$emit('started-playing')" @pause="$emit('paused')" @ratechange="rateChanged()"></video>
+  <video
+    ref="player"
+    id="player"
+    :src="source"
+    controls
+    @playing="$emit('started-playing')"
+    @pause="$emit('paused')"
+    @ratechange="rateChanged()"
+  ></video>
 </template>
 
 <script lang="ts">
@@ -22,6 +30,7 @@ export default defineComponent({
     'paused'
   ],
   setup (props, ctx) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const player = ref<HTMLVideoElement>(null!)
 
     const source = computed(() => {
@@ -33,14 +42,14 @@ export default defineComponent({
       }
     })
 
-    watch(toRef(props, 'playbackRate'), newRate => {
+    watch(toRef(props, 'playbackRate'), (newRate) => {
       player.value.playbackRate = newRate
     })
 
     let lastCurrentTime: DOMHighResTimeStamp | null = null
     const updateCurrentTime = () => {
       const newTime = player.value?.currentTime
-      if (newTime!== null && lastCurrentTime !== newTime) {
+      if (newTime !== null && lastCurrentTime !== newTime) {
         lastCurrentTime = newTime
         ctx.emit('update:time-display', newTime)
       }
@@ -75,20 +84,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
-  label {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
-  .video-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
+.video-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
 
-  #player {
-    max-width: 100%;
-  }
+#player {
+  max-width: 100%;
+}
 </style>

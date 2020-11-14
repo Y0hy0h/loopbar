@@ -1,19 +1,26 @@
 <template>
   <div class="beat-settings">
     <div class="visualization">
-      <span class="beat-indicator">{{beatIndicator}}</span>
-      {{bpmDisplay}} bpm
+      <span class="beat-indicator">{{ beatIndicator }}</span>
+      {{ bpmDisplay }} bpm
     </div>
     <div class="settings-area">
       <div class="custom setting">
         <div class="header">
           <label>
-            <input type="radio" name="beatInput" value="custom" v-model="beatInput"/>
+            <input
+              type="radio"
+              name="beatInput"
+              value="custom"
+              v-model="beatInput"
+            />
             Use custom settings
           </label>
         </div>
         <div class="inputs">
-          <NumberInput v-model="customBpmRef">Beats per minute (bpm)</NumberInput>
+          <NumberInput v-model="customBpmRef"
+            >Beats per minute (bpm)</NumberInput
+          >
           <SliderInput v-model="customOffsetPercent" :min="-50" :max="50">
             Offset
             <template v-slot:unit> % of bpm</template>
@@ -23,10 +30,20 @@
       <div class="meter setting">
         <div class="header">
           <label>
-            <input type="radio" name="beatInput" value="meter" v-model="beatInput" :disabled="beatMeter.needsMoreBeats"/>
+            <input
+              type="radio"
+              name="beatInput"
+              value="meter"
+              v-model="beatInput"
+              :disabled="beatMeter.needsMoreBeats"
+            />
             <div>
-              <span :class="{ disabled: beatMeter.needsMoreBeats }">Use tap settings</span>
-              <span v-if="beatMeter.needsMoreBeats"> (unavailable until set)</span>
+              <span :class="{ disabled: beatMeter.needsMoreBeats }"
+                >Use tap settings</span
+              >
+              <span v-if="beatMeter.needsMoreBeats">
+                (unavailable until set)</span
+              >
             </div>
           </label>
         </div>
@@ -37,7 +54,7 @@
               Set the beats per minute (bpm) by tapping the button.
             </span>
             <span v-else class="bpm">
-              {{meterBpmDisplay}} bpm (offset {{meterOffsetDisplay}})
+              {{ meterBpmDisplay }} bpm (offset {{ meterOffsetDisplay }})
             </span>
           </div>
           <button @click="resetClicked">Reset bpm</button>
@@ -48,7 +65,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive, ref, toRef, watch } from 'vue'
+import {
+  computed,
+  defineComponent,
+  PropType,
+  reactive,
+  ref,
+  toRef,
+  watch
+} from 'vue'
 
 import NumberInput from '@/components/number-input.vue'
 import SliderInput from '@/components/slider-input.vue'
@@ -78,11 +103,7 @@ export default defineComponent({
       required: true
     }
   },
-  emits: [
-    'update:bpm',
-    'update:offset',
-    'start-play'
-  ],
+  emits: ['update:bpm', 'update:offset', 'start-play'],
   setup (props, ctx) {
     const beatInput = ref('custom')
     const customBpmRef = ref(props.customBpm)
@@ -96,12 +117,12 @@ export default defineComponent({
       }
     })
 
-    watch(toRef(props, 'customBpm'), newPropBpm => {
+    watch(toRef(props, 'customBpm'), (newPropBpm) => {
       if (newPropBpm !== customBpmRef.value) {
         customBpmRef.value = newPropBpm
       }
     })
-    watch(toRef(props, 'customOffset'), newPropOffset => {
+    watch(toRef(props, 'customOffset'), (newPropOffset) => {
       if (newPropOffset !== customOffsetRef.value) {
         customOffsetRef.value = newPropOffset
       }
@@ -142,9 +163,10 @@ export default defineComponent({
 
     const clap = computed(() => {
       const offsetSeconds = offset.value * period.value
-      const beatPhase = (props.currentTimeDisplay - offsetSeconds) % period.value
+      const beatPhase =
+        (props.currentTimeDisplay - offsetSeconds) % period.value
       // Only clap for 25 % of the beat.
-      return (beatPhase / period.value) < 0.25
+      return beatPhase / period.value < 0.25
     })
     const beatIndicator = computed(() => {
       if (clap.value) {
@@ -155,7 +177,9 @@ export default defineComponent({
     })
 
     const meterBpmDisplay = computed(() => beatMeter.bpm.toFixed(1))
-    const meterOffsetDisplay = computed(() => `${(beatMeter.offset * 100).toFixed(0)} %`)
+    const meterOffsetDisplay = computed(
+      () => `${(beatMeter.offset * 100).toFixed(0)} %`
+    )
 
     const bpmDisplay = computed(() => bpm.value.toFixed(1))
     const offsetDisplay = computed(() => {
@@ -193,70 +217,70 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-  label {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
+label {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 
-    input[type="radio"] {
-      margin-inline-end: 0.5em;
-    }
+  input[type="radio"] {
+    margin-inline-end: 0.5em;
   }
+}
 
-  .disabled {
-    color: hsl(0, 0%, 50%);
-  }
+.disabled {
+  color: hsl(0, 0%, 50%);
+}
 
-  .beat-settings {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1em;
-  }
+.beat-settings {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1em;
+}
 
-  .settings-area {
-    align-self: stretch;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
-    gap: 1rem;
-    align-items: flex-start;
-  }
+.settings-area {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
+  gap: 1rem;
+  align-items: flex-start;
+}
 
-  .setting {
-    padding: 0.5em;
-    border: 1px solid black;
-    border-radius: 0.1em;
-  }
+.setting {
+  padding: 0.5em;
+  border: 1px solid black;
+  border-radius: 0.1em;
+}
 
-  .header {
-    margin-block-end: 0.5em;
-  }
+.header {
+  margin-block-end: 0.5em;
+}
 
-  .inputs {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
+.inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
 
-  .meter {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5em;
-  }
+.meter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5em;
+}
 
-  .bpm-display {
-    display: inline-block;
-  }
+.bpm-display {
+  display: inline-block;
+}
 
-  .beat-indicator {
-    display: inline-block;
-    width: 1.5em;
-  }
+.beat-indicator {
+  display: inline-block;
+  width: 1.5em;
+}
 
-  .missing-beats {
-    font-style: italic;
-  }
+.missing-beats {
+  font-style: italic;
+}
 </style>

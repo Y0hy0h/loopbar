@@ -13,33 +13,35 @@
       <div class="video-area">
         <VideoPlayer
           ref="player"
+          class="player"
           :file="videoFile"
           @update:time-display="currentTimeDisplay = $event"
-          @paused="videoPaused"
+          @update:isPlaying="isPlaying = $event"
           v-model:playbackRate="playbackRate"
+          :mirrored="mirrored"
         ></VideoPlayer>
+        <div class="video-controls">
+          <div class="control-group">
+            <button @click="togglePlay()">{{ playButtonText }}</button>
+            <NumberInput v-model="playbackRatePercent">Speed (in %)</NumberInput>
+          </div>
+          <div class="control-group">
+            <label class="compact-label">
+              <input type="checkbox" v-model="isLooping"/>
+              Loop
+            </label>
+            <button @click="goToLoopStart()">Go to loop start</button>
+          </div>
+          <div class="control-group">
+            <label class="compact-label">
+              <input type="checkbox" v-model="mirrored"/>
+              Mirrored
+            </label>
+          </div>
+        </div>
         <span class="currentTime">
           Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
-        <div class="rate-settings">
-          <SliderInput
-            class="rate-slider"
-            v-model="playbackRatePercent"
-            :min="25"
-            :max="300"
-          >
-            Playback rate
-            <template v-slot:unit> %</template>
-          </SliderInput>
-          <div class="rate-buttons">
-            <button @click="playbackRate = 0.25">25 %</button>
-            <button @click="playbackRate = 0.5">50 %</button>
-            <button @click="playbackRate = 0.75">75 %</button>
-            <button @click="playbackRate = 1">100 %</button>
-            <button @click="playbackRate = 1.5">150 %</button>
-            <button @click="playbackRate = 2">200 %</button>
-          </div>
-        </div>
       </div>
       <div class="loop-area">
         <button @click="toggleLoop()">{{ loopButtonText }}</button>
@@ -96,7 +98,6 @@ import { computed, defineComponent, reactive, Ref, ref, watch } from 'vue'
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
 import NumberInput from '@/components/number-input.vue'
-import SliderInput from '@/components/slider-input.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
@@ -105,7 +106,6 @@ import { periodFromBpm } from '@/logic/beatMeter'
 export default defineComponent({
   components: {
     VideoPlayer,
-    SliderInput,
     NumberInput,
     BeatSettings
   },
@@ -116,6 +116,15 @@ export default defineComponent({
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const player = ref<typeof VideoPlayer>(null!)
+    const mirrored = ref(false)
+    const isPlaying = ref(false)
+    const playButtonText = computed(() => {
+      if (isPlaying.value) {
+        return 'Pause'
+      } else {
+        return 'Play'
+      }
+    })
     const currentTimeDisplay = ref(0)
     const currentTimeIndicator = computed(() => {
       return timecodeFromSecond(currentTimeDisplay.value)
@@ -155,13 +164,16 @@ export default defineComponent({
       }
     })
 
-    const playLoopStart = () => {
+    const goToLoopStart = () => {
       const startInSeconds = secondFromBar(
         range.start,
         period.value,
         offset.value
       )
       player.value.seekToSecond(startInSeconds)
+    }
+    const playLoopStart = () => {
+      goToLoopStart()
       player.value.play()
     }
     watch(
@@ -237,7 +249,10 @@ export default defineComponent({
     return {
       videoFileInput,
       videoFile,
+      isPlaying,
       player,
+      mirrored,
+      playButtonText,
       currentTimeDisplay,
       currentTimeIndicator,
       playbackRate,
@@ -252,6 +267,7 @@ export default defineComponent({
       range,
       shiftMultiplier,
       loopButtonText,
+      goToLoopStart,
       playLoopStart
     }
   },
@@ -273,6 +289,9 @@ export default defineComponent({
       } else {
         return 0
       }
+    },
+    togglePlay () {
+      this.player.togglePlay()
     },
     shiftLoop (direction: number) {
       const offset = direction * this.shiftMultiplier
@@ -312,7 +331,6 @@ function secondFromBar (bar: number, period: number, offset: number): number {
 
 <style scoped lang="scss">
 .root-container {
-  max-width: 32rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -324,6 +342,7 @@ function secondFromBar (bar: number, period: number, offset: number): number {
   flex-direction: column;
   align-items: flex-start;
   gap: 2rem;
+  width: 100%;
 }
 
 label {
@@ -332,14 +351,48 @@ label {
   align-items: flex-start;
 }
 
+.compact-label {
+  display: inline-flex;
+  flex-direction: row;
+}
+
 .video-area {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
+  width: 100%;
 }
 
-.rate-settings,
+.player {
+  width: 100%;
+  max-width: 100%;
+  max-height: 50vh;
+}
+
+.video-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  column-gap: 2rem;
+  row-gap: 1rem;
+  align-items: center;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media(min-width: 28em) {
+  .control-group {
+    flex-direction: row;
+  }
+}
+
 .loop-area,
 .beat-settings {
   border: 1px solid black;

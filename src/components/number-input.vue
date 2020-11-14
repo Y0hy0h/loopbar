@@ -9,8 +9,10 @@
         class="input"
         type="text"
         inputmode="decimal"
+        size="3"
         :value="inputText"
         @change="newInput($event.target.value)"
+        @focus="$event.target.select()"
       />
     </label>
     <button class="second-button" @click="increment">➡️</button>
@@ -83,7 +85,8 @@ function formatValue (value: number): string {
 
 <style scoped lang="scss">
 .number-input {
-  display: grid;
+  display: inline-grid;
+  grid-template-columns: auto 1fr auto;
   grid-template-areas:
     "label label label"
     "first input second";
@@ -111,8 +114,6 @@ label {
 
 input {
   padding-inline: 0.5rem;
-  width: 100%;
-  min-width: 2em;
 }
 
 button {

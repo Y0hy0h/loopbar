@@ -1,11 +1,11 @@
 <template>
   <video
     ref="player"
-    id="player"
+    :class="{ mirrored: mirrored }"
     :src="source"
-    controls
-    @playing="$emit('started-playing')"
-    @pause="$emit('paused')"
+    @click="togglePlay()"
+    @playing="$emit('update:isPlaying', true)"
+    @pause="$emit('update:isPlaying', false)"
     @ratechange="rateChanged()"
   ></video>
 </template>
@@ -21,13 +21,16 @@ export default defineComponent({
     playbackRate: {
       type: Number,
       default: 1
+    },
+    mirrored: {
+      type: Boolean,
+      default: false
     }
   },
   emits: [
     'update:time-display',
-    'update:playbackRate',
-    'started-playing',
-    'paused'
+    'update:isPlaying',
+    'update:playbackRate'
   ],
   setup (props, ctx) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -69,6 +72,13 @@ export default defineComponent({
     seekToSecond (second: number) {
       this.player.currentTime = second
     },
+    togglePlay () {
+      if (this.player.paused || this.player.ended) {
+        this.play()
+      } else {
+        this.player.pause()
+      }
+    },
     play () {
       this.player.play()
     },
@@ -84,20 +94,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-label {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.video-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-#player {
-  max-width: 100%;
+.mirrored {
+  transform: scaleX(-100%)
 }
 </style>

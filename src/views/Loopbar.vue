@@ -18,7 +18,7 @@
           @update:time-display="currentTimeDisplay = $event"
           @update:isPlaying="isPlaying = $event"
           v-model:playbackRate="playbackRate"
-          :update:duration="duration = $event"
+          @update:duration="duration = $event"
           :mirrored="mirrored"
         ></VideoPlayer>
         <div class="video-controls">
@@ -43,7 +43,7 @@
         <span class="currentTime">
           Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
-        <Slider class="time-slider" :modelValue="currentTimeDisplay" @update:modelValue="seekToSecond($event)" :min="0" :max="duration"></Slider>
+        <Slider class="time-slider" :modelValue="currentTimeDisplay" @update:modelValue="seekToSecond($event)" :min="0" :max="duration" :step="0.01"></Slider>
       </div>
       <div class="loop-area">
         <button @click="toggleLoop()">{{ loopButtonText }}</button>

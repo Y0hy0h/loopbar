@@ -5,6 +5,7 @@
           @input="newSliderInput($event.target.value)"
           :min="min"
           :max="max"
+          :step="step"
         />
 </template>
 

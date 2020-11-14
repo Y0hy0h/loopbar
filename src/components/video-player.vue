@@ -3,6 +3,7 @@
     ref="player"
     :class="{ mirrored: mirrored }"
     :src="source"
+    @loadedmetadata="durationChanged()"
     @click="togglePlay()"
     @playing="$emit('update:isPlaying', true)"
     @pause="$emit('update:isPlaying', false)"
@@ -12,12 +13,12 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, toRef, watch } from 'vue'
+import { computed, defineComponent, onMounted, PropType, ref, toRef, watch } from 'vue'
 
 export default defineComponent({
   props: {
     file: {
-      type: File
+      type: Object as PropType<File>
     },
     playbackRate: {
       type: Number,

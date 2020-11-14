@@ -1,14 +1,5 @@
 <template>
   <div class="root-container">
-    <label>
-      Choose a video file
-      <input
-        ref="videoFileInput"
-        type="file"
-        accept="video/*"
-        @change="videoFileSelected"
-      />
-    </label>
     <div class="control-container" v-if="videoFile !== null">
       <div class="video-area">
         <VideoPlayer
@@ -91,6 +82,15 @@
         @start-play="player.play()"
       ></BeatSettings>
     </div>
+    <label>
+      Choose a video file
+      <input
+        ref="videoFileInput"
+        type="file"
+        accept="video/*"
+        @change="videoFileSelected"
+      />
+    </label>
   </div>
 </template>
 
@@ -376,7 +376,6 @@ label {
 .player {
   width: 100%;
   max-width: 100%;
-  max-height: 50vh;
 }
 
 .video-controls {

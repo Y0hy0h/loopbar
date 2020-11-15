@@ -1,4 +1,6 @@
-export class Range {
+import { Ranged } from './trackStack'
+
+export class Range implements Ranged {
   private start_: number;
   private end_: number;
 
@@ -72,6 +74,18 @@ export class Range {
       this.setStart(0)
       this.setEnd(oldDuration)
     }
+  }
+
+  getStart (): number {
+    return this.start
+  }
+
+  getEnd (): number {
+    return this.end
+  }
+
+  getDuration (): number {
+    return this.duration
   }
 
   private sanitizeInput (newValue: number, oldValue: number, min = 0) {

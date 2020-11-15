@@ -9,7 +9,7 @@
         class="input"
         type="text"
         inputmode="decimal"
-        size="3"
+        size="2"
         :value="inputText"
         @change="newInput($event.target.value)"
         @focus="$event.target.select()"

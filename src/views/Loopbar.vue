@@ -297,6 +297,7 @@ export default defineComponent({
       }
     },
     seekToSecond (second: number) {
+      this.stopLoop()
       this.player.seekToSecond(second)
     },
     togglePlay () {

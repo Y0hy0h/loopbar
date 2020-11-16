@@ -1,7 +1,31 @@
+import { Range } from '@/logic/range'
+
 export interface Ranged {
     getStart(): number;
     getEnd(): number;
     getDuration(): number;
+}
+
+export interface Selection {
+  track: number;
+  item: number;
+}
+
+export class Loop implements Ranged {
+  // eslint-disable-next-line no-useless-constructor
+  constructor (public range: Range, public title?: string) {}
+
+  getStart (): number {
+    return this.range.getStart()
+  }
+
+  getEnd (): number {
+    return this.range.getEnd()
+  }
+
+  getDuration (): number {
+    return this.range.getDuration()
+  }
 }
 
 export class Track<T extends Ranged> {
@@ -32,13 +56,22 @@ export class Track<T extends Ranged> {
       if (itemsToDelete === 1) {
         const overlap = this.items[precedingIndex]
         if (overlap.getDuration() < newItem.getDuration()) {
+          // If the newItem is bigger than the overlapping item.
           return this.items.splice(precedingIndex, itemsToDelete, newItem)
+        } else if (overlap.getStart() === newItem.getStart() && overlap.getEnd() === newItem.getEnd()) {
+          // If there already is an item with the same range.
+          return []
         } else {
+          // If the newItem is shorter than the overlapping item.
           return [newItem]
         }
       } else {
         return this.items.splice(precedingIndex, itemsToDelete, newItem)
       }
+    }
+
+    public removeAtIndex (index: number) {
+      this.items.splice(index, 1)
     }
 }
 
@@ -68,5 +101,13 @@ export class TrackStack<T extends Ranged> {
         })
         this.tracks.push(newTrack)
       }
+    }
+
+    /**
+     * @param trackIndex The index of the track where the item to remove is in.
+     * @param itemIndex The index of the item inside its track.
+     */
+    public removeAtIndex (trackIndex: number, itemIndex: number) {
+      this.tracks[trackIndex].removeAtIndex(itemIndex)
     }
 }

@@ -35,9 +35,10 @@
           Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
         <Slider class="time-slider" :modelValue="currentTimeDisplay" @update:modelValue="seekToSecond($event)" :min="0" :max="duration" :step="0.01"></Slider>
+        <LoopTrackStack :trackStack="loopTrackStack" v-model:selected="selectedLoop" v-if="durationInBars !== null" :duration="durationInBars"></LoopTrackStack>
       </div>
       <div class="loop-area">
-        <button @click="toggleLoop()">{{ loopButtonText }}</button>
+        <button @click="saveLoop()">Save</button>
         <div class="loop-settings">
           <div class="input-with-button">
             <NumberInput
@@ -101,17 +102,20 @@ import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
 import NumberInput from '@/components/number-input.vue'
 import Slider from '@/components/slider.vue'
+import LoopTrackStack from '@/components/loop-track-stack.vue'
 
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
 import { periodFromBpm } from '@/logic/beatMeter'
+import { Loop, TrackStack } from '@/logic/trackStack'
 
 export default defineComponent({
   components: {
     VideoPlayer,
     NumberInput,
     Slider,
-    BeatSettings
+    BeatSettings,
+    LoopTrackStack
   },
   setup () {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -121,6 +125,13 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const player = ref<typeof VideoPlayer>(null!)
     const duration = ref<number | null>(null)
+    const durationInBars = computed(() => {
+      if (duration.value !== null) {
+        return barFromTime(duration.value, period.value, offset.value)
+      } else {
+        return null
+      }
+    })
     const mirrored = ref(false)
     const isPlaying = ref(false)
     const playButtonText = computed(() => {
@@ -145,18 +156,26 @@ export default defineComponent({
     const bpm = ref(120)
     const period = computed(() => periodFromBpm(bpm.value))
     const offset = ref(0)
-    const bar = computed(() => {
-      if (period.value > 0) {
-        const offsetSeconds = offset.value * period.value
+    const barFromTime = (currentTime: number, period: number, offset: number) => {
+      if (period > 0) {
+        const offsetSeconds = offset * period
         return Math.floor(
-          (currentTimeDisplay.value - offsetSeconds) / period.value
+          (currentTime - offsetSeconds) / period
         )
       } else {
         return 0
       }
+    }
+    const bar = computed(() => {
+      return barFromTime(currentTimeDisplay.value, period.value, offset.value)
     })
     const customBpm = ref(bpm.value)
     const customOffset = ref(offset.value)
+
+    const loopTrackStack = reactive(new TrackStack())
+    const selectedLoop = ref<Selection | null>(null)
+    loopTrackStack.insert(new Loop(Range.fromStartAndEnd(1, 2)))
+    loopTrackStack.insert(new Loop(Range.fromStartAndEnd(2, 3)))
 
     const range = reactive(Range.fromStartAndDuration(0, 8))
     const shiftMultiplier = ref(8)
@@ -257,6 +276,7 @@ export default defineComponent({
       isPlaying,
       player,
       duration,
+      durationInBars,
       mirrored,
       playButtonText,
       currentTimeDisplay,
@@ -270,6 +290,8 @@ export default defineComponent({
       customOffset,
       bar,
       isLooping,
+      loopTrackStack,
+      selectedLoop,
       range,
       shiftMultiplier,
       loopButtonText,
@@ -306,6 +328,10 @@ export default defineComponent({
     shiftLoop (direction: number) {
       const offset = direction * this.shiftMultiplier
       this.range.shift(offset)
+    },
+    saveLoop () {
+      const loop = new Loop(Range.fromStartAndEnd(this.range.start, this.range.end))
+      this.loopTrackStack.insert(loop)
     },
     toggleLoop () {
       if (!this.isLooping) {

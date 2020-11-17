@@ -61,6 +61,22 @@ describe('TrackStack', () => {
     expect(stack.tracks[1].items).to.deep.equal([range1, range2])
   })
 
+  it('moves the item with the later start to a new track', () => {
+    const stack = new TrackStack()
+
+    const range1 = Range.fromStartAndEnd(1, 3)
+    const range2 = Range.fromStartAndEnd(2, 5)
+    const range3 = Range.fromStartAndEnd(5, 6)
+
+    stack.insert(range2)
+    stack.insert(range3)
+    stack.insert(range1)
+
+    expect(stack.tracks.length).to.equal(2)
+    expect(stack.tracks[0].items).to.deep.equal([range1, range3])
+    expect(stack.tracks[1].items).to.deep.equal([range2])
+  })
+
   it('moves the smaller item to a new track', () => {
     const stack = new TrackStack()
 

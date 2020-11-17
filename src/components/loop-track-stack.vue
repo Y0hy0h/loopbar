@@ -1,31 +1,67 @@
 <template>
   <div class="loop-track-stack-container">
     <!-- eslint-disable-next-line vue/require-v-for-key -->
-    <div class="track" v-for="(track, trackIndex) in trackStack.tracks">
+    <div class="track" v-for="track in trackStack.tracks">
       <!-- eslint-disable-next-line vue/require-v-for-key -->
-      <div class="loop" v-for="(loop, loopIndex) in track.items" :style="{ left: `${normalized(loop.getStart())}%`, width: `${normalizedWidth(loop)}%` }" :class="{ selected: isSelected(trackIndex, loopIndex) }" @click="select(trackIndex, loopIndex)"/>
+      <div class="loop" v-for="entry in track.items" :style="{ left: `${normalized(entry.getStart())}%`, width: `${normalizedWidth(entry)}%` }" :class="{ selected: isSelected(entry.index) }" @click="select(entry.index)"/>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { computed, defineComponent, PropType, toRefs } from 'vue'
 
-import { Loop, TrackStack, Selection } from '@/logic/trackStack'
+import { Loop, TrackStack, Ranged } from '@/logic/trackStack'
+
+class LoopEntry implements Ranged {
+  // eslint-disable-next-line no-useless-constructor
+  constructor (
+    public loop: Loop,
+    public index: number
+  ) {}
+
+  getStart (): number {
+    return this.loop.getStart()
+  }
+
+  getEnd (): number {
+    return this.loop.getEnd()
+  }
+
+  getDuration (): number {
+    return this.loop.getDuration()
+  }
+}
 
 export default defineComponent({
   props: {
-    trackStack: {
-      type: Object as PropType<TrackStack<Loop>>,
+    loops: {
+      type: Array as PropType<Loop[]>,
       required: true
     },
     selected: {
-      type: Object as PropType<Selection | null>,
-      required: true
+      type: Number as PropType<number | null>,
+      default: null
     },
     duration: {
       type: Number,
       required: true
+    }
+  },
+  setup (props) {
+    const { loops } = toRefs(props)
+
+    const trackStack = computed(() => {
+      const stack = new TrackStack()
+      loops.value.forEach((loop, index) => {
+        const entry = new LoopEntry(loop, index)
+        stack.insert(entry)
+      })
+      return stack
+    })
+
+    return {
+      trackStack
     }
   },
   emits: [
@@ -38,13 +74,12 @@ export default defineComponent({
     normalizedWidth (loop: Loop): number {
       return this.normalized(loop.getEnd() - loop.getStart())
     },
-    select (trackIndex: number, itemIndex: number) {
-      const selected = { track: trackIndex, item: itemIndex }
-      this.$emit('update:selected', selected)
+    select (index: number) {
+      this.$emit('update:selected', index)
     },
-    isSelected (trackIndex: number, itemIndex: number): boolean {
+    isSelected (index: number): boolean {
       if (this.selected !== null) {
-        return trackIndex === this.selected.track && itemIndex === this.selected.item
+        return this.selected === index
       } else {
         return false
       }
@@ -72,6 +107,6 @@ export default defineComponent({
 }
 
 .loop.selected {
-  background-color: gray;
+  background-color: hsl(0, 0%, 71%);
 }
 </style>

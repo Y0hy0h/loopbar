@@ -35,7 +35,7 @@
           Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
         <Slider class="time-slider" :modelValue="currentTimeDisplay" @update:modelValue="seekToSecond($event)" :min="0" :max="duration" :step="0.01"></Slider>
-        <LoopTrackStack :trackStack="loopTrackStack" v-model:selected="selectedLoop" v-if="durationInBars !== null" :duration="durationInBars"></LoopTrackStack>
+        <LoopTrackStack :loops="loops" v-model:selected="selectedLoop" v-if="durationInBars !== null" :duration="durationInBars"></LoopTrackStack>
       </div>
       <div class="loop-area">
         <button @click="saveLoop()">Save</button>
@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, Ref, ref, watch } from 'vue'
+import { computed, ComputedRef, defineComponent, reactive, Ref, ref, watch } from 'vue'
 
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
@@ -107,7 +107,7 @@ import LoopTrackStack from '@/components/loop-track-stack.vue'
 import { Range } from '@/logic/range'
 import { timecodeFromSecond } from '@/logic/time'
 import { periodFromBpm } from '@/logic/beatMeter'
-import { Loop, TrackStack } from '@/logic/trackStack'
+import { Loop } from '@/logic/trackStack'
 
 export default defineComponent({
   components: {
@@ -172,12 +172,18 @@ export default defineComponent({
     const customBpm = ref(bpm.value)
     const customOffset = ref(offset.value)
 
-    const loopTrackStack = reactive(new TrackStack())
-    const selectedLoop = ref<Selection | null>(null)
-    loopTrackStack.insert(new Loop(Range.fromStartAndEnd(1, 2)))
-    loopTrackStack.insert(new Loop(Range.fromStartAndEnd(2, 3)))
+    const loops = ref<Loop[]>([])
+    const selectedLoop = ref<number | null>(null)
 
-    const range = reactive(Range.fromStartAndDuration(0, 8))
+    const newRange = reactive(Range.fromStartAndDuration(0, 8))
+    const range = computed(() => {
+      const selection = selectedLoop.value
+      if (selection !== null) {
+        return loops.value[selection].range
+      } else {
+        return newRange
+      }
+    })
     const shiftMultiplier = ref(8)
     const isLooping = ref(false)
     const loopButtonText = computed(() => {
@@ -190,7 +196,7 @@ export default defineComponent({
 
     const goToLoopStart = () => {
       const startInSeconds = secondFromBar(
-        range.start,
+        range.value.start,
         period.value,
         offset.value
       )
@@ -204,7 +210,7 @@ export default defineComponent({
       [isLooping, currentTimeDisplay, range] as [
         Ref<boolean>,
         Ref<DOMHighResTimeStamp>,
-        Range
+        ComputedRef<Range>
       ],
       ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
         // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
@@ -247,7 +253,7 @@ export default defineComponent({
       }
     }
     watch(
-      [bpm, offset, range] as [Ref<number>, Ref<number>, Range],
+      [bpm, offset, range] as [Ref<number>, Ref<number>, ComputedRef<Range>],
       ([newBpm, newOffset, newRange]) => {
         if (videoFile.value !== null) {
           saveSettingsForFile(videoFile.value, {
@@ -264,8 +270,8 @@ export default defineComponent({
         if (stored !== null) {
           customBpm.value = stored.bpm
           customOffset.value = stored.offset
-          range.setStart(stored.range.start)
-          range.setEnd(stored.range.end)
+          range.value.setStart(stored.range.start)
+          range.value.setEnd(stored.range.end)
         }
       }
     })
@@ -290,7 +296,7 @@ export default defineComponent({
       customOffset,
       bar,
       isLooping,
-      loopTrackStack,
+      loops,
       selectedLoop,
       range,
       shiftMultiplier,
@@ -331,7 +337,7 @@ export default defineComponent({
     },
     saveLoop () {
       const loop = new Loop(Range.fromStartAndEnd(this.range.start, this.range.end))
-      this.loopTrackStack.insert(loop)
+      this.loops.push(loop)
     },
     toggleLoop () {
       if (!this.isLooping) {

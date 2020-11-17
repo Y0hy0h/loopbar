@@ -6,11 +6,6 @@ export interface Ranged {
     getDuration(): number;
 }
 
-export interface Selection {
-  track: number;
-  item: number;
-}
-
 export class Loop implements Ranged {
   // eslint-disable-next-line no-useless-constructor
   constructor (public range: Range, public title?: string) {}
@@ -53,20 +48,34 @@ export class Track<T extends Ranged> {
       }
 
       const itemsToDelete = followingIndex - precedingIndex
-      if (itemsToDelete === 1) {
-        const overlap = this.items[precedingIndex]
-        if (overlap.getDuration() < newItem.getDuration()) {
-          // If the newItem is bigger than the overlapping item.
-          return this.items.splice(precedingIndex, itemsToDelete, newItem)
-        } else if (overlap.getStart() === newItem.getStart() && overlap.getEnd() === newItem.getEnd()) {
-          // If there already is an item with the same range.
-          return []
-        } else {
-          // If the newItem is shorter than the overlapping item.
-          return [newItem]
-        }
+      if (itemsToDelete === 0) {
+        return this.items.splice(precedingIndex, 0, newItem)
       } else {
-        return this.items.splice(precedingIndex, itemsToDelete, newItem)
+        const firstOverlap = this.items[precedingIndex]
+        if (firstOverlap.getStart() < newItem.getStart()) {
+          // If the existing item start earlier than the new item,
+          // move the new item to the next track.
+          return [newItem]
+        } else if (firstOverlap.getStart() === newItem.getStart()) {
+          if (firstOverlap.getEnd() === newItem.getEnd()) {
+            // If there already is an item with the same range,
+            // do nothing.
+            return []
+          } else if (firstOverlap.getEnd() > newItem.getEnd()) {
+            // If the new item is shorter than the existing
+            // (then there is only one overlapping item),
+            // move the new item to the new track.
+            return [newItem]
+          } else {
+            // If the new item is longer than the existing ones,
+            // move those to the new track.
+            return this.items.splice(precedingIndex, itemsToDelete, newItem)
+          }
+        } else {
+          // If the existing items start later,
+          // move them to a new track.
+          return this.items.splice(precedingIndex, itemsToDelete, newItem)
+        }
       }
     }
 
@@ -101,13 +110,5 @@ export class TrackStack<T extends Ranged> {
         })
         this.tracks.push(newTrack)
       }
-    }
-
-    /**
-     * @param trackIndex The index of the track where the item to remove is in.
-     * @param itemIndex The index of the item inside its track.
-     */
-    public removeAtIndex (trackIndex: number, itemIndex: number) {
-      this.tracks[trackIndex].removeAtIndex(itemIndex)
     }
 }

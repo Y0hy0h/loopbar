@@ -1,9 +1,9 @@
 <template>
-  <div class="loop-track-stack-container">
+  <div class="loop-track-stack-container" @click.stop="deselect()">
     <!-- eslint-disable-next-line vue/require-v-for-key -->
     <div class="track" v-for="track in trackStack.tracks">
       <!-- eslint-disable-next-line vue/require-v-for-key -->
-      <div class="loop" v-for="entry in track.items" :style="{ left: `${normalized(entry.getStart())}%`, width: `${normalizedWidth(entry)}%` }" :class="{ selected: isSelected(entry.index) }" @click="select(entry.index)"/>
+      <div class="loop" v-for="entry in track.items" :style="{ left: `${normalized(entry.getStart())}%`, width: `${normalizedWidth(entry)}%` }" :class="{ selected: isSelected(entry.index) }" @click.stop="select(entry.index)"/>
     </div>
   </div>
 </template>
@@ -76,6 +76,9 @@ export default defineComponent({
     },
     select (index: number) {
       this.$emit('update:selected', index)
+    },
+    deselect () {
+      this.$emit('update:selected', null)
     },
     isSelected (index: number): boolean {
       if (this.selected !== null) {

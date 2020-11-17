@@ -38,7 +38,8 @@
         <LoopTrackStack :loops="loops" v-model:selected="selectedLoop" v-if="durationInBars !== null" :duration="durationInBars"></LoopTrackStack>
       </div>
       <div class="loop-area">
-        <button @click="saveLoop()">Save</button>
+        <button @click="saveLoop()" v-if="!loopIsSelected">Save</button>
+        <button @click="deleteSelectedLoop()" v-if="loopIsSelected">Delete</button>
         <div class="loop-settings">
           <div class="input-with-button">
             <NumberInput
@@ -172,14 +173,17 @@ export default defineComponent({
     const customBpm = ref(bpm.value)
     const customOffset = ref(offset.value)
 
-    const loops = ref<Loop[]>([])
+    const loops = reactive<Loop[]>([])
     const selectedLoop = ref<number | null>(null)
+    const loopIsSelected = computed(() => {
+      return selectedLoop.value !== null
+    })
 
     const newRange = reactive(Range.fromStartAndDuration(0, 8))
     const range = computed(() => {
       const selection = selectedLoop.value
       if (selection !== null) {
-        return loops.value[selection].range
+        return loops[selection].range
       } else {
         return newRange
       }
@@ -298,6 +302,7 @@ export default defineComponent({
       isLooping,
       loops,
       selectedLoop,
+      loopIsSelected,
       range,
       shiftMultiplier,
       loopButtonText,
@@ -338,6 +343,12 @@ export default defineComponent({
     saveLoop () {
       const loop = new Loop(Range.fromStartAndEnd(this.range.start, this.range.end))
       this.loops.push(loop)
+    },
+    deleteSelectedLoop () {
+      if (this.selectedLoop !== null) {
+        this.loops.splice(this.selectedLoop, 1)
+        this.selectedLoop = null
+      }
     },
     toggleLoop () {
       if (!this.isLooping) {

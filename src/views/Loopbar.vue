@@ -38,9 +38,10 @@
         <LoopTrackStack :loops="loops" v-model:selected="selectedLoop" v-if="durationInBars !== null" :duration="durationInBars"></LoopTrackStack>
       </div>
       <div class="loop-area">
-        <button @click="saveLoop()" v-if="!loopIsSelected">Save</button>
-        <button @click="deleteSelectedLoop()" v-if="loopIsSelected">Delete</button>
-        <input type="text" v-model="loopTitle"/>
+        <label class="inline-label">
+          Loop title:
+          <input class="margin-left" type="text" v-model="loopTitle"/>
+        </label>
         <div class="loop-settings">
           <div class="input-with-button">
             <NumberInput
@@ -73,6 +74,8 @@
           <button @click="shiftLoop(+1)">➡️️</button>
           <NumberInput v-model="shiftMultiplier">Shift multiplier</NumberInput>
         </div>
+        <button @click="saveLoop()" v-if="!loopIsSelected">Save</button>
+        <button @click="deleteSelectedLoop()" v-if="loopIsSelected">Delete</button>
       </div>
       <BeatSettings
         class="beat-settings"
@@ -423,6 +426,14 @@ label {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+.inline-label {
+  flex-direction: row;
+
+  .margin-left {
+    margin-left: 0.5em;
+  }
 }
 
 .compact-label {

@@ -255,7 +255,7 @@ export default defineComponent({
         const insideOfLoop =
           startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
         if (nowIsLooping && !insideOfLoop) {
-          playLoopStart()
+          goToLoopStart()
         }
       }
     )

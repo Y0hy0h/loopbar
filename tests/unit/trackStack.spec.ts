@@ -19,7 +19,7 @@ describe('TrackStack', () => {
     expect(stack.tracks[0].items).to.deep.equal([range1, range2, range3])
   })
 
-  it('prevents duplicate ranges', () => {
+  it('allows duplicate ranges', () => {
     const stack = new TrackStack()
 
     const range1 = Range.fromStartAndEnd(1, 2)
@@ -29,8 +29,9 @@ describe('TrackStack', () => {
     stack.insert(range2)
     stack.insert(range1)
 
-    expect(stack.tracks.length).to.equal(1)
+    expect(stack.tracks.length).to.equal(2)
     expect(stack.tracks[0].items).to.deep.equal([range1, range2])
+    expect(stack.tracks[1].items).to.deep.equal([range1])
   })
 
   it('adds non-overlapping ranges into one track', () => {

@@ -57,17 +57,13 @@ export class Track<T extends Ranged> {
           // move the new item to the next track.
           return [newItem]
         } else if (firstOverlap.getStart() === newItem.getStart()) {
-          if (firstOverlap.getEnd() === newItem.getEnd()) {
-            // If there already is an item with the same range,
-            // do nothing.
-            return []
-          } else if (firstOverlap.getEnd() > newItem.getEnd()) {
+          if (firstOverlap.getEnd() > newItem.getEnd()) {
             // If the new item is shorter than the existing
             // (then there is only one overlapping item),
             // move the new item to the new track.
             return [newItem]
           } else {
-            // If the new item is longer than the existing ones,
+            // If the new item is longer than or equal to the existing ones,
             // move those to the new track.
             return this.items.splice(precedingIndex, itemsToDelete, newItem)
           }

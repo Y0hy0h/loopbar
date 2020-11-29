@@ -233,6 +233,18 @@ export default defineComponent({
       goToLoopStart()
       player.value.play()
     }
+    // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
+    // To prevent that we get stuck in a loop, we do not restart the loop if we are very close to the start time.
+    const isInsideRange = (currentSecond: number, range: Range, tolerance = 0) => {
+      const startTime = secondFromBar(range.start, period.value, offset.value) - tolerance
+      const endTime = secondFromBar(
+        range.end,
+        period.value,
+        offset.value
+      )
+
+      return startTime < currentSecond && currentSecond < endTime
+    }
     watch(
       [isLooping, currentTimeDisplay, range] as [
         Ref<boolean>,
@@ -240,20 +252,7 @@ export default defineComponent({
         ComputedRef<Range>
       ],
       ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
-        // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
-        // To prevent that we get stuck in a loop, we do not restart the loop if we are very close to the start time.
-        const tolerance = 0.1
-        const startTime =
-          secondFromBar(currentRange.start, period.value, offset.value) -
-          tolerance
-        const endTime = secondFromBar(
-          currentRange.end,
-          period.value,
-          offset.value
-        )
-
-        const insideOfLoop =
-          startTime < nowCurrentTimeDisplay && nowCurrentTimeDisplay < endTime
+        const insideOfLoop = isInsideRange(nowCurrentTimeDisplay, currentRange, 0.1)
         if (nowIsLooping && !insideOfLoop) {
           goToLoopStart()
         }
@@ -314,6 +313,7 @@ export default defineComponent({
       playButtonText,
       currentTimeDisplay,
       currentTimeIndicator,
+      isInsideRange,
       playbackRate,
       playbackRatePercent,
       bpm,
@@ -354,7 +354,10 @@ export default defineComponent({
       }
     },
     seekToSecond (second: number) {
-      this.stopLoop()
+      const insideLoop = this.isInsideRange(second, this.range as Range)
+      if (!insideLoop) {
+        this.stopLoop()
+      }
       this.player.seekToSecond(second)
     },
     togglePlay () {

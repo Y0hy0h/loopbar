@@ -266,6 +266,12 @@ export default defineComponent({
         start: number;
         end: number;
       };
+      loops: SerializedLoop[];
+    }
+    interface SerializedLoop {
+      start: number;
+      end: number;
+      title: string;
     }
     const saveSettingsForFile = (file: File, settings: Settings) => {
       localStorage.setItem(file.name, JSON.stringify(settings))
@@ -279,13 +285,24 @@ export default defineComponent({
       }
     }
     watch(
-      [bpm, offset, range] as [Ref<number>, Ref<number>, ComputedRef<Range>],
-      ([newBpm, newOffset, newRange]) => {
+      // Apparently, you cannot watch a computed value that is actually a reference.
+      // I.e., updates to the newRange are not visible when watching range.
+      [bpm, offset, newRange, loops] as [Ref<number>, Ref<number>, Range, Loop[]],
+      ([newBpm, newOffset, newRange, newLoops]) => {
         if (videoFile.value !== null) {
+          const serializedLoops = newLoops.map(loop => {
+            return {
+              start: loop.getStart(),
+              end: loop.getEnd(),
+              title: loop.title
+            }
+          })
+
           saveSettingsForFile(videoFile.value, {
             bpm: newBpm,
             offset: newOffset,
-            range: { start: newRange.start, end: newRange.end }
+            range: { start: newRange.start, end: newRange.end },
+            loops: serializedLoops
           })
         }
       }
@@ -298,6 +315,13 @@ export default defineComponent({
           customOffset.value = stored.offset
           range.value.setStart(stored.range.start)
           range.value.setEnd(stored.range.end)
+          const deserializedLoops = stored.loops.map(serialized => {
+            return new Loop(
+              Range.fromStartAndEnd(serialized.start, serialized.end),
+              serialized.title
+            )
+          })
+          loops.splice(0, loops.length, ...deserializedLoops)
         }
       }
     })

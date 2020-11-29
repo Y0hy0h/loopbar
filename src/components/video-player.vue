@@ -102,6 +102,6 @@ export default defineComponent({
 
 <style scoped>
 .mirrored {
-  transform: scaleX(-100%)
+  transform: scaleX(-1)
 }
 </style>

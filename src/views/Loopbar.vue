@@ -40,6 +40,7 @@
       <div class="loop-area">
         <button @click="saveLoop()" v-if="!loopIsSelected">Save</button>
         <button @click="deleteSelectedLoop()" v-if="loopIsSelected">Delete</button>
+        <input type="text" v-model="loopTitle"/>
         <div class="loop-settings">
           <div class="input-with-button">
             <NumberInput
@@ -188,6 +189,25 @@ export default defineComponent({
         return newRange
       }
     })
+    const newLoopTitle = ref('')
+    const loopTitle = computed({
+      get: () => {
+        const selection = selectedLoop.value
+        if (selection !== null) {
+          return loops[selection].title
+        } else {
+          return newLoopTitle.value
+        }
+      },
+      set: (newTitle: string) => {
+        const selection = selectedLoop.value
+        if (selection !== null) {
+          loops[selection].title = newTitle
+        } else {
+          newLoopTitle.value = newTitle
+        }
+      }
+    })
     const shiftMultiplier = ref(8)
     const isLooping = ref(false)
     const loopButtonText = computed(() => {
@@ -302,6 +322,7 @@ export default defineComponent({
       isLooping,
       loops,
       selectedLoop,
+      loopTitle,
       loopIsSelected,
       range,
       shiftMultiplier,
@@ -341,7 +362,7 @@ export default defineComponent({
       this.range.shift(offset)
     },
     saveLoop () {
-      const loop = new Loop(Range.fromStartAndEnd(this.range.start, this.range.end))
+      const loop = new Loop(Range.fromStartAndEnd(this.range.start, this.range.end), this.loopTitle)
       this.loops.push(loop)
     },
     deleteSelectedLoop () {

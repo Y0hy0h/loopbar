@@ -8,7 +8,7 @@ export interface Ranged {
 
 export class Loop implements Ranged {
   // eslint-disable-next-line no-useless-constructor
-  constructor (public range: Range, public title?: string) {}
+  constructor (public range: Range, public title: string) {}
 
   getStart (): number {
     return this.range.getStart()

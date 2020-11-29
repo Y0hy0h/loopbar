@@ -3,7 +3,9 @@
     <!-- eslint-disable-next-line vue/require-v-for-key -->
     <div class="track" v-for="track in trackStack.tracks">
       <!-- eslint-disable-next-line vue/require-v-for-key -->
-      <div class="loop" v-for="entry in track.items" :style="{ left: `${normalized(entry.getStart())}%`, width: `${normalizedWidth(entry)}%` }" :class="{ selected: isSelected(entry.index) }" @click.stop="select(entry.index)"/>
+      <div class="loop" v-for="entry in track.items" :style="{ left: `${normalized(entry.getStart())}%`, width: `${normalizedWidth(entry)}%` }" :class="{ selected: isSelected(entry.index) }" @click.stop="select(entry.index)">
+        {{ entry.loop.title }}
+      </div>
     </div>
   </div>
 </template>
@@ -107,6 +109,9 @@ export default defineComponent({
   top: 0;
   border: 1px solid black;
   height: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .loop.selected {

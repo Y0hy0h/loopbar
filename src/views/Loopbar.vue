@@ -15,18 +15,20 @@
         <div class="video-controls">
           <div class="control-group">
             <button @click="togglePlay()">{{ playButtonText }}</button>
-            <NumberInput v-model="playbackRatePercent">Speed (in %)</NumberInput>
+            <NumberInput v-model="playbackRatePercent"
+              >Speed (in %)</NumberInput
+            >
           </div>
           <div class="control-group">
             <label class="compact-label">
-              <input type="checkbox" v-model="isLooping"/>
+              <input type="checkbox" v-model="isLooping" />
               Loop
             </label>
             <button @click="goToLoopStart()">Go to loop start</button>
           </div>
           <div class="control-group">
             <label class="compact-label">
-              <input type="checkbox" v-model="mirrored"/>
+              <input type="checkbox" v-model="mirrored" />
               Mirrored
             </label>
           </div>
@@ -34,13 +36,25 @@
         <span class="currentTime">
           Beat #{{ bar }} ({{ currentTimeIndicator }})
         </span>
-        <Slider class="time-slider" :modelValue="currentTimeDisplay" @update:modelValue="seekToSecond($event)" :min="0" :max="duration" :step="0.01"></Slider>
-        <LoopTrackStack :loops="loops" v-model:selected="selectedLoop" v-if="durationInBars !== null" :duration="durationInBars"></LoopTrackStack>
+        <Slider
+          class="time-slider"
+          :modelValue="currentTimeDisplay"
+          @update:modelValue="seekToSecond($event)"
+          :min="0"
+          :max="duration"
+          :step="0.01"
+        ></Slider>
+        <LoopTrackStack
+          :loops="loops"
+          v-model:selected="selectedLoop"
+          v-if="durationInBars !== null"
+          :duration="durationInBars"
+        ></LoopTrackStack>
       </div>
       <div class="loop-area">
         <label class="inline-label">
           Loop title:
-          <input class="margin-left" type="text" v-model="loopTitle"/>
+          <input class="margin-left" type="text" v-model="loopTitle" />
         </label>
         <div class="loop-settings">
           <div class="input-with-button">
@@ -75,7 +89,9 @@
           <NumberInput v-model="shiftMultiplier">Shift multiplier</NumberInput>
         </div>
         <button @click="saveLoop()" v-if="!loopIsSelected">Save</button>
-        <button @click="deleteSelectedLoop()" v-if="loopIsSelected">Delete</button>
+        <button @click="deleteSelectedLoop()" v-if="loopIsSelected">
+          Delete
+        </button>
       </div>
       <BeatSettings
         class="beat-settings"
@@ -87,6 +103,8 @@
         @update:offset="offset = $event"
         @start-play="player.play()"
       ></BeatSettings>
+      <textarea v-model="exportData" />
+      <button @click="importData()">Import</button>
     </div>
     <label>
       Choose a video file
@@ -101,7 +119,15 @@
 </template>
 
 <script lang="ts">
-import { computed, ComputedRef, defineComponent, reactive, Ref, ref, watch } from 'vue'
+import {
+  computed,
+  ComputedRef,
+  defineComponent,
+  reactive,
+  Ref,
+  ref,
+  watch
+} from 'vue'
 
 import VideoPlayer from '@/components/video-player.vue'
 import BeatSettings from '@/components/beat-settings.vue'
@@ -161,12 +187,14 @@ export default defineComponent({
     const bpm = ref(120)
     const period = computed(() => periodFromBpm(bpm.value))
     const offset = ref(0)
-    const barFromTime = (currentTime: number, period: number, offset: number) => {
+    const barFromTime = (
+      currentTime: number,
+      period: number,
+      offset: number
+    ) => {
       if (period > 0) {
         const offsetSeconds = offset * period
-        return Math.floor(
-          (currentTime - offsetSeconds) / period
-        )
+        return Math.floor((currentTime - offsetSeconds) / period)
       } else {
         return 0
       }
@@ -235,13 +263,14 @@ export default defineComponent({
     }
     // When seeking to a time, the player might not be able to hit that time exactly and may choose a slightly earlier time.
     // To prevent that we get stuck in a loop, we do not restart the loop if we are very close to the start time.
-    const isInsideRange = (currentSecond: number, range: Range, tolerance = 0) => {
-      const startTime = secondFromBar(range.start, period.value, offset.value) - tolerance
-      const endTime = secondFromBar(
-        range.end,
-        period.value,
-        offset.value
-      )
+    const isInsideRange = (
+      currentSecond: number,
+      range: Range,
+      tolerance = 0
+    ) => {
+      const startTime =
+        secondFromBar(range.start, period.value, offset.value) - tolerance
+      const endTime = secondFromBar(range.end, period.value, offset.value)
 
       return startTime < currentSecond && currentSecond < endTime
     }
@@ -252,7 +281,11 @@ export default defineComponent({
         ComputedRef<Range>
       ],
       ([nowIsLooping, nowCurrentTimeDisplay, currentRange]) => {
-        const insideOfLoop = isInsideRange(nowCurrentTimeDisplay, currentRange, 0.1)
+        const insideOfLoop = isInsideRange(
+          nowCurrentTimeDisplay,
+          currentRange,
+          0.1
+        )
         if (nowIsLooping && !insideOfLoop) {
           goToLoopStart()
         }
@@ -284,13 +317,27 @@ export default defineComponent({
         return null
       }
     }
+    const exportData = ref('')
+    interface Exports {
+      bpm: number;
+      offset: number;
+      loops: SerializedLoop[];
+    };
+    const updateExports = (exports: Exports) => {
+      exportData.value = JSON.stringify(exports)
+    }
     watch(
       // Apparently, you cannot watch a computed value that is actually a reference.
       // I.e., updates to the newRange are not visible when watching range.
-      [bpm, offset, newRange, loops] as [Ref<number>, Ref<number>, Range, Loop[]],
+      [bpm, offset, newRange, loops] as [
+        Ref<number>,
+        Ref<number>,
+        Range,
+        Loop[]
+      ],
       ([newBpm, newOffset, newRange, newLoops]) => {
         if (videoFile.value !== null) {
-          const serializedLoops = newLoops.map(loop => {
+          const serializedLoops = newLoops.map((loop) => {
             return {
               start: loop.getStart(),
               end: loop.getEnd(),
@@ -304,9 +351,22 @@ export default defineComponent({
             range: { start: newRange.start, end: newRange.end },
             loops: serializedLoops
           })
+          updateExports({
+            bpm: newBpm,
+            offset: newOffset,
+            loops: serializedLoops
+          })
         }
       }
     )
+    const deserializeLoops = (serializedLoops: SerializedLoop[]): Loop[] => {
+      return serializedLoops.map((serialized) => {
+        return new Loop(
+          Range.fromStartAndEnd(serialized.start, serialized.end),
+          serialized.title
+        )
+      })
+    }
     watch(videoFile, (newFile) => {
       if (newFile !== null) {
         const stored = loadSettingsForFile(newFile)
@@ -315,12 +375,7 @@ export default defineComponent({
           customOffset.value = stored.offset
           range.value.setStart(stored.range.start)
           range.value.setEnd(stored.range.end)
-          const deserializedLoops = stored.loops.map(serialized => {
-            return new Loop(
-              Range.fromStartAndEnd(serialized.start, serialized.end),
-              serialized.title
-            )
-          })
+          const deserializedLoops = deserializeLoops(stored.loops)
           loops.splice(0, loops.length, ...deserializedLoops)
         }
       }
@@ -355,7 +410,9 @@ export default defineComponent({
       shiftMultiplier,
       loopButtonText,
       goToLoopStart,
-      playLoopStart
+      playLoopStart,
+      deserializeLoops,
+      exportData
     }
   },
   methods: {
@@ -392,7 +449,10 @@ export default defineComponent({
       this.range.shift(offset)
     },
     saveLoop () {
-      const loop = new Loop(Range.fromStartAndEnd(this.range.start, this.range.end), this.loopTitle)
+      const loop = new Loop(
+        Range.fromStartAndEnd(this.range.start, this.range.end),
+        this.loopTitle
+      )
       this.loops.push(loop)
     },
     deleteSelectedLoop () {
@@ -423,6 +483,12 @@ export default defineComponent({
     },
     loopEndToNowClicked () {
       this.range.setEnd(this.bar)
+    },
+    importData () {
+      const data = JSON.parse(this.exportData)
+      this.customBpm = data.bpm
+      this.customOffset = data.offset
+      this.loops.splice(0, this.loops.length, ...this.deserializeLoops(data.loops))
     }
   }
 })
@@ -498,7 +564,7 @@ label {
   gap: 1rem;
 }
 
-@media(min-width: 28em) {
+@media (min-width: 28em) {
   .control-group {
     flex-direction: row;
   }

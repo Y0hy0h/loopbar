@@ -1,6 +1,6 @@
 <template>
   <div class="number-input">
-    <button class="first-button" @click="decrement">⬅️</button>
+    <button class="first-button" @click="decrement">-{{step}}</button>
     <label>
       <div class="label">
         <slot></slot>
@@ -15,7 +15,7 @@
         @focus="$event.target.select()"
       />
     </label>
-    <button class="second-button" @click="increment">➡️</button>
+    <button class="second-button" @click="increment">+{{step}}</button>
   </div>
 </template>
 
@@ -27,6 +27,10 @@ export default defineComponent({
     modelValue: {
       type: Number,
       required: true
+    },
+    step: {
+      type: Number,
+      default: 1
     }
   },
   emits: ['update:modelValue'],
@@ -56,10 +60,10 @@ export default defineComponent({
       }
     },
     increment () {
-      this.$emit('update:modelValue', this.modelValue + 1)
+      this.$emit('update:modelValue', this.modelValue + this.step)
     },
     decrement () {
-      this.$emit('update:modelValue', this.modelValue - 1)
+      this.$emit('update:modelValue', this.modelValue - this.step)
     }
   }
 })
@@ -117,6 +121,6 @@ input {
 }
 
 button {
-  padding: 0.2rem;
+  padding: 0.2rem 0.4rem;
 }
 </style>

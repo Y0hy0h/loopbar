@@ -15,7 +15,7 @@
         <div class="video-controls">
           <div class="control-group">
             <button @click="togglePlay()">{{ playButtonText }}</button>
-            <NumberInput v-model="playbackRatePercent" step="5"
+            <NumberInput v-model="playbackRatePercent" :step="5"
               >Speed (in %)</NumberInput
             >
           </div>

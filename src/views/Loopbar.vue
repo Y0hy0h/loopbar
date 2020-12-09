@@ -88,6 +88,9 @@
           <button @click="shiftLoop(+1)">➡️️</button>
           <NumberInput v-model="shiftMultiplier">Shift multiplier</NumberInput>
         </div>
+        <div class="loop-settings">
+          <NumberInput v-model="warmup" class="narrow-input">Preparation</NumberInput>
+        </div>
         <button @click="saveLoop()" v-if="!loopIsSelected">Save</button>
         <button @click="deleteSelectedLoop()" v-if="loopIsSelected">
           Delete
@@ -220,6 +223,7 @@ export default defineComponent({
         return newRange
       }
     })
+    const warmup = ref(8)
     const newLoopTitle = ref('')
     const loopTitle = computed({
       get: () => {
@@ -251,7 +255,7 @@ export default defineComponent({
 
     const goToLoopStart = () => {
       const startInSeconds = secondFromBar(
-        range.value.start,
+        range.value.start - warmup.value,
         period.value,
         offset.value
       )
@@ -269,7 +273,7 @@ export default defineComponent({
       tolerance = 0
     ) => {
       const startTime =
-        secondFromBar(range.start, period.value, offset.value) - tolerance
+        secondFromBar(range.start - warmup.value, period.value, offset.value) - tolerance
       const endTime = secondFromBar(range.end, period.value, offset.value)
 
       return startTime < currentSecond && currentSecond < endTime
@@ -407,6 +411,7 @@ export default defineComponent({
       loopTitle,
       loopIsSelected,
       range,
+      warmup,
       shiftMultiplier,
       loopButtonText,
       goToLoopStart,
